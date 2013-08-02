@@ -58,7 +58,13 @@
                  inProject:(NSString *)projectPath
 {
   NSString *absPath = [projectPath hasPrefix:@"/"] ? [[[NSURL fileURLWithPath:projectPath] URLByStandardizingPath] path] : projectPath;
-  [_buildables addObject:@{@"id":identifier, @"project":absPath, @"target":target, @"executable": executable, @"type": type}];
+  NSMutableDictionary *buildable = [NSMutableDictionary dictionary];
+  if (identifier != nil) [buildable setObject:identifier forKey:@"id"];
+  if (absPath != nil)    [buildable setObject:absPath forKey:@"project"];
+  if (target != nil)     [buildable setObject:target forKey:@"target"];
+  if (executable != nil) [buildable setObject:executable forKey:@"executable"];
+  if (type != nil)       [buildable setObject:type forKey:@"type"];
+  [_buildables addObject:buildable];
 }
 
 - (void)addProjectPathToWorkspace:(NSString *)projectPath

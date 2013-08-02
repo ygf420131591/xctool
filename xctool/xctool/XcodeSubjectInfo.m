@@ -212,7 +212,7 @@ static NSDictionary *BuildConfigurationsByActionForSchemePath(NSString *schemePa
     }
   }
 
-  if (NO && [schemes count] == 0) {
+  if ([schemes count] == 0) {
     // Generate the scheme files
     NSString *userDirectoryName = [NSString stringWithFormat:@"%@.xcuserdatad", NSUserName()];
     NSString *userSchemesPath = [[[project stringByAppendingPathComponent:@"xcuserdata"] stringByAppendingPathComponent:userDirectoryName] stringByAppendingPathComponent:@"xcschemes"];
