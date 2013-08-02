@@ -29,6 +29,12 @@
 - (void)addBuildableWithID:(NSString *)identifier
                  inProject:(NSString *)projectPath;
 
+- (void)addBuildableWithID:(NSString *)identifier
+                    target:(NSString *)target
+                executable:(NSString *)executable
+                      type:(NSString *)type
+                 inProject:(NSString *)projectPath;
+
 - (void)addProjectPathToWorkspace:(NSString *)projectPath;
 
 /// Write the workspace into this directory.
@@ -38,5 +44,8 @@
 /// Write the workspace into a temporary directory.
 /// Returns the path to the xcworkspace directory.
 - (NSString *)writeWorkspaceNamed:(NSString *)name;
+
+// Only write the scheme file to this directory
+- (BOOL)writeSchemeTo:(NSString *)destination;
 
 @end

@@ -19,6 +19,7 @@
 #import "TaskUtil.h"
 #import "XCToolUtil.h"
 #import "XcodeTargetMatch.h"
+#import "SchemeGenerator.h"
 
 // We consider a DerivedData "recently modified" within this interval.
 static const NSTimeInterval RECENTLY_MODIFIED_DERIVED_DATA_INTERVAL = 60 * 15;
@@ -208,6 +209,45 @@ static NSDictionary *BuildConfigurationsByActionForSchemePath(NSString *schemePa
           }
         }
       }
+    }
+  }
+
+  if (NO && [schemes count] == 0) {
+    // Generate the scheme files
+    NSString *userDirectoryName = [NSString stringWithFormat:@"%@.xcuserdatad", NSUserName()];
+    NSString *userSchemesPath = [[[project stringByAppendingPathComponent:@"xcuserdata"] stringByAppendingPathComponent:userDirectoryName] stringByAppendingPathComponent:@"xcschemes"];
+    NSError *error = nil;
+
+    [[NSFileManager defaultManager] createDirectoryAtPath:userSchemesPath withIntermediateDirectories:YES attributes:nil error:&error];
+
+    if (error == nil) {
+      NSDictionary *projectObjects = [NSDictionary dictionaryWithContentsOfFile:[project stringByAppendingPathComponent:@"project.pbxproj"]][@"objects"];
+      NSDictionary *targetTypes = @{
+                                    @"com.apple.product-type.application": @"application",
+                                    @"com.apple.product-type.bundle": @"test",
+                                    @"com.apple.product-type.bundle.unit-test": @"test",
+                                    @"com.apple.product-type.library.dynamic": @"library",
+                                    @"com.apple.product-type.library.static": @"library",
+                                    };
+
+      [projectObjects enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSDictionary *target, BOOL *stop) {
+        NSString *targetType = targetTypes[target[@"productType"]];
+
+        if ([target[@"isa"] isEqualToString:@"PBXNativeTarget"]) {
+          SchemeGenerator *generator = [SchemeGenerator schemeGenerator];
+          NSDictionary *product = projectObjects[target[@"productReference"]];
+          NSString *schemeDirectoryName = [NSString stringWithFormat:@"%@.xcscheme", target[@"name"]];
+          NSString *schemePath = [userSchemesPath stringByAppendingPathComponent:schemeDirectoryName];
+
+          generator.parallelizeBuildables = YES;
+          generator.buildImplicitDependencies = YES;
+          [generator addBuildableWithID:key target:target[@"name"] executable:product[@"path"] type:targetType inProject:[project lastPathComponent]];
+
+          if ([generator writeSchemeTo:schemePath]) {
+            [schemes addObject:schemePath];
+          }
+        }
+      }];
     }
   }
 

@@ -48,8 +48,17 @@
 - (void)addBuildableWithID:(NSString *)identifier
                  inProject:(NSString *)projectPath
 {
-  NSString *absPath = [[[NSURL fileURLWithPath:projectPath] URLByStandardizingPath] path];
-  [_buildables addObject:@{@"id":identifier, @"project":absPath}];
+  [self addBuildableWithID:identifier target:nil executable:nil type:nil inProject:projectPath];
+}
+
+- (void)addBuildableWithID:(NSString *)identifier
+                    target:(NSString *)target
+                executable:(NSString *)executable
+                      type:(NSString *)type
+                 inProject:(NSString *)projectPath
+{
+  NSString *absPath = [projectPath hasPrefix:@"/"] ? [[[NSURL fileURLWithPath:projectPath] URLByStandardizingPath] path] : projectPath;
+  [_buildables addObject:@{@"id":identifier, @"project":absPath, @"target":target, @"executable": executable, @"type": type}];
 }
 
 - (void)addProjectPathToWorkspace:(NSString *)projectPath
@@ -93,23 +102,12 @@
     goto err;
   }
 
-  NSString * schemeDirPath = [workspacePath stringByAppendingPathComponent:@"xcshareddata/xcschemes"];
-  [fileManager createDirectoryAtPath:schemeDirPath
-         withIntermediateDirectories:YES
-                          attributes:@{}
-                               error:&err];
-  if (err) {
-    goto err;
-  }
+  NSString *schemeDirectoryName = [name stringByAppendingPathExtension:@"xcscheme"];
+  NSString * schemeDirPath = [workspacePath stringByAppendingPathComponent:[NSString stringWithFormat:@"xcshareddata/xcschemes/%@", schemeDirectoryName]];
 
-  NSString *schemePath = [schemeDirPath stringByAppendingPathComponent:
-                          [name stringByAppendingPathExtension:@"xcscheme"]];
-  [[[self _schemeDocument] XMLStringWithOptions:NSXMLNodePrettyPrint]
-   writeToFile:schemePath
-   atomically:NO
-   encoding:NSUTF8StringEncoding
-   error:nil];
-  if (err) {
+  [self writeSchemeTo:schemeDirPath error:&err];
+
+  if (err != nil) {
     goto err;
   }
 
@@ -118,6 +116,38 @@
 err:
   NSLog(@"Error creating temporary workspace: %@", err.localizedFailureReason);
   return NO;
+}
+
+- (BOOL)writeSchemeTo:(NSString *)destination {
+  NSError *error = nil;
+
+  [self writeSchemeTo:destination error:&error];
+
+  return (error == nil);
+}
+
+- (void)writeSchemeTo:(NSString *)destination error:(NSError **)outError {
+  NSString * schemeDirPath = [destination stringByDeletingLastPathComponent];
+  NSError *error = nil;
+
+  [[NSFileManager defaultManager] createDirectoryAtPath:schemeDirPath
+                            withIntermediateDirectories:YES
+                                             attributes:nil
+                                                  error:&error];
+
+  if (error == nil) {
+    NSString *schemeContent = [[self _schemeDocument] XMLStringWithOptions:NSXMLNodePrettyPrint];
+
+    [schemeContent writeToFile:destination
+                    atomically:NO
+                      encoding:NSUTF8StringEncoding
+                         error:&error];
+  }
+
+  if (error != nil) {
+    NSLog(@"Error creating the scheme file: %@", error.localizedFailureReason);
+    outError = &error;
+  }
 }
 
 - (NSXMLDocument *)_workspaceDocument
@@ -151,9 +181,15 @@ NSArray *attributeListFromDict(NSDictionary *dict) {
 - (NSXMLDocument *)_schemeDocument
 {
   NSXMLElement *buildActionEntries = [NSXMLNode elementWithName:@"BuildActionEntries"];
+  NSXMLElement *testableEntries = [NSXMLNode elementWithName:@"Testables"];
+  NSXMLElement *testableReferenceEntries = [NSXMLNode elementWithName:@"TestableReference"];
+  NSXMLElement *macroExpansionEntries = [NSXMLNode elementWithName:@"MacroExpansion"];
+  NSXMLElement *productRunnableEntries = [NSXMLNode elementWithName:@"BuildableProductRunnable"];
+  BOOL targetIsNonRunnable = ([_buildables count] == 1 && [@[@"test", @"library"] containsObject:_buildables[0][@"type"]]);
+  BOOL targetIsTest = (targetIsNonRunnable && [_buildables[0][@"type"] isEqualToString:@"test"]);
 
   for (NSDictionary *buildable in _buildables) {
-    NSString *container = [@"absolute:" stringByAppendingString:buildable[@"project"]];
+    NSString *container = [([buildable[@"project"] hasPrefix:@"/"] ? @"absolute:" : @"container:") stringByAppendingString:buildable[@"project"]];
     NSXMLElement *buildableReference =
     [NSXMLNode
      elementWithName:@"BuildableReference" children:@[]
@@ -161,6 +197,8 @@ NSArray *attributeListFromDict(NSDictionary *dict) {
                                       @"BuildableIdentifier": @"primary",
                                       @"BlueprintIdentifier": buildable[@"id"],
                                       @"ReferencedContainer": container,
+                                      @"BlueprintName": buildable[@"target"] ? buildable[@"target"] : @"",
+                                      @"BuildableName": buildable[@"executable"] ? buildable[@"executable"] : @"",
                                       })];
 
     NSXMLElement *buildActionEntry =
@@ -175,27 +213,90 @@ NSArray *attributeListFromDict(NSDictionary *dict) {
                                       @"buildForAnalyzing": @"YES",
                                       })];
 
-    [buildActionEntries addChild:buildActionEntry];
+    if (!targetIsTest) [buildActionEntries addChild:buildActionEntry];
+    [testableReferenceEntries addChild:[[buildableReference copy] autorelease]];
+    [macroExpansionEntries addChild:[[buildableReference copy] autorelease]];
+    [productRunnableEntries addChild:[[buildableReference copy] autorelease]];
   }
+
+  if (targetIsTest) [testableEntries addChild:testableReferenceEntries];
 
   NSXMLElement *buildAction =
   [NSXMLNode
    elementWithName:@"BuildAction"
-   children:@[[NSXMLNode elementWithName:@"PreActions"],
-              [NSXMLNode elementWithName:@"PostActions"],
-              buildActionEntries]
+   children:targetIsTest ? nil : @[buildActionEntries]
    attributes:@[[NSXMLNode attributeWithName:@"parallelizeBuildables"
                                  stringValue:_parallelizeBuildables ? @"YES" : @"NO"],
                 [NSXMLNode attributeWithName:@"buildImplicitDependencies"
                                  stringValue:_buildImplicitDependencies ? @"YES" : @"NO"]]];
 
+  NSXMLElement *testAction =
+  [NSXMLNode
+   elementWithName:@"TestAction"
+   children:targetIsNonRunnable ? @[testableEntries] : @[testableEntries, macroExpansionEntries]
+   attributes:attributeListFromDict(@{
+                                    @"selectedDebuggerIdentifier": @"Xcode.DebuggerFoundation.Debugger.LLDB",
+                                    @"selectedLauncherIdentifier": @"Xcode.DebuggerFoundation.Launcher.LLDB",
+                                    @"shouldUseLaunchSchemeArgsEnv": @"YES",
+                                    @"buildConfiguration": @"Debug",
+                                    })];
+
+  NSXMLElement *launchAction =
+  [NSXMLNode
+   elementWithName:@"LaunchAction"
+   children:targetIsNonRunnable ? @[[NSXMLNode elementWithName:@"AdditionalOptions"]] : @[[NSXMLNode elementWithName:@"AdditionalOptions"], [[productRunnableEntries copy] autorelease]]
+   attributes:attributeListFromDict(@{
+                                    @"selectedDebuggerIdentifier": @"Xcode.DebuggerFoundation.Debugger.LLDB",
+                                    @"selectedLauncherIdentifier": @"Xcode.DebuggerFoundation.Launcher.LLDB",
+                                    @"launchStyle": @"0",
+                                    @"useCustomWorkingDirectory": @"NO",
+                                    @"buildConfiguration": @"Debug",
+                                    @"ignoresPersistentStateOnLaunch": @"NO",
+                                    @"debugDocumentVersioning": @"YES",
+                                    @"allowLocationSimulation": @"YES",
+                                    })];
+
+  NSXMLElement *profileAction =
+  [NSXMLNode
+   elementWithName:@"ProfileAction"
+   children:targetIsNonRunnable ? nil : @[productRunnableEntries]
+   attributes:attributeListFromDict(@{
+                                    @"shouldUseLaunchSchemeArgsEnv": @"YES",
+                                    @"savedToolIdentifier": @"",
+                                    @"useCustomWorkingDirectory": @"NO",
+                                    @"buildConfiguration": @"Release",
+                                    @"debugDocumentVersioning": @"YES",
+                                    })];
+
+  NSXMLElement *analyzeAction =
+  [NSXMLNode
+   elementWithName:@"AnalyzeAction"
+   children:nil
+   attributes:attributeListFromDict(@{
+                                    @"buildConfiguration": @"Debug",
+                                    })];
+
+  NSXMLElement *archiveAction =
+  [NSXMLNode
+   elementWithName:@"ArchiveAction"
+   children:nil
+   attributes:attributeListFromDict(@{
+                                    @"buildConfiguration": @"Release",
+                                    @"revealArchiveInOrganizer": @"YES",
+                                    })];
+
   NSXMLElement *root =
   [NSXMLNode
    elementWithName:@"Scheme"
-   children:@[buildAction]
-   attributes:@[[NSXMLNode attributeWithName:@"version" stringValue:@"1.7"]]];
+   children:@[buildAction, testAction, launchAction, profileAction, analyzeAction, archiveAction]
+   attributes:attributeListFromDict(@{@"LastUpgradeVersion": @"0460", @"version": @"1.3"})];
 
-  return [NSXMLDocument documentWithRootElement:root];
+  NSXMLDocument *document = [NSXMLDocument documentWithRootElement:root];
+  [document setVersion: @"1.0"];
+  [document setCharacterEncoding: @"UTF-8"];
+  [document setStandalone:YES];
+
+  return document;
 }
 
 @end

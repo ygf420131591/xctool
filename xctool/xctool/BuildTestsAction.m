@@ -108,7 +108,11 @@
   }
 
   for (NSDictionary *buildable in testables) {
-    [schemeGenerator addBuildableWithID:buildable[@"targetID"] inProject:buildable[@"projectPath"]];
+    [schemeGenerator addBuildableWithID:buildable[@"targetID"]
+                                 target:buildable[@"target"]
+                             executable:buildable[@"executable"]
+                                   type:@"application"
+                              inProject:buildable[@"projectPath"]];
   }
 
   NSArray *xcodebuildArguments = [options commonXcodeBuildArgumentsForSchemeAction:@"TestAction"
