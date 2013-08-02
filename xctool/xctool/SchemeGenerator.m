@@ -57,7 +57,7 @@
                       type:(NSString *)type
                  inProject:(NSString *)projectPath
 {
-  NSString *absPath = [projectPath hasPrefix:@"/"] ? [[[NSURL fileURLWithPath:projectPath] URLByStandardizingPath] path] : projectPath;
+  NSString *absPath = [[[NSURL fileURLWithPath:projectPath] URLByStandardizingPath] path];
   NSMutableDictionary *buildable = [NSMutableDictionary dictionary];
   if (identifier != nil) [buildable setObject:identifier forKey:@"id"];
   if (absPath != nil)    [buildable setObject:absPath forKey:@"project"];
@@ -195,7 +195,8 @@ NSArray *attributeListFromDict(NSDictionary *dict) {
   BOOL targetIsTest = (targetIsNonRunnable && [_buildables[0][@"type"] isEqualToString:@"test"]);
 
   for (NSDictionary *buildable in _buildables) {
-    NSString *container = [([buildable[@"project"] hasPrefix:@"/"] ? @"absolute:" : @"container:") stringByAppendingString:buildable[@"project"]];
+    NSString *project = [buildable[@"project"] lastPathComponent];
+    NSString *container = [NSString stringWithFormat:@"container:%@", project];
     NSXMLElement *buildableReference =
     [NSXMLNode
      elementWithName:@"BuildableReference" children:@[]

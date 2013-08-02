@@ -241,7 +241,7 @@ static NSDictionary *BuildConfigurationsByActionForSchemePath(NSString *schemePa
 
           generator.parallelizeBuildables = YES;
           generator.buildImplicitDependencies = YES;
-          [generator addBuildableWithID:key target:target[@"name"] executable:product[@"path"] type:targetType inProject:[project lastPathComponent]];
+          [generator addBuildableWithID:key target:target[@"name"] executable:product[@"path"] type:targetType inProject:project];
 
           if ([generator writeSchemeTo:schemePath]) {
             [schemes addObject:schemePath];
