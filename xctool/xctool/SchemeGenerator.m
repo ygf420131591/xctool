@@ -195,8 +195,7 @@ NSArray *attributeListFromDict(NSDictionary *dict) {
   BOOL targetIsTest = (targetIsNonRunnable && [_buildables[0][@"type"] isEqualToString:@"test"]);
 
   for (NSDictionary *buildable in _buildables) {
-    NSString *project = [buildable[@"project"] lastPathComponent];
-    NSString *container = [NSString stringWithFormat:@"container:%@", project];
+    NSString *container = [NSString stringWithFormat:@"absolute:%@", buildable[@"project"]];
     NSXMLElement *buildableReference =
     [NSXMLNode
      elementWithName:@"BuildableReference" children:@[]
