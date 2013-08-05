@@ -34,6 +34,7 @@
   if (self) {
     _buildables = [[NSMutableArray array] retain];
     _projectPaths = [[NSMutableSet set] retain];
+    _useAbsolutePath = YES;
   }
   return self;
 }
@@ -195,7 +196,8 @@ NSArray *attributeListFromDict(NSDictionary *dict) {
   BOOL targetIsTest = (targetIsNonRunnable && [_buildables[0][@"type"] isEqualToString:@"test"]);
 
   for (NSDictionary *buildable in _buildables) {
-    NSString *container = [NSString stringWithFormat:@"absolute:%@", buildable[@"project"]];
+    NSString *container = _useAbsolutePath ? [NSString stringWithFormat:@"absolute:%@", buildable[@"project"]]
+                                           : [NSString stringWithFormat:@"container:%@", [buildable[@"project"] lastPathComponent]];
     NSXMLElement *buildableReference =
     [NSXMLNode
      elementWithName:@"BuildableReference" children:@[]

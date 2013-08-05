@@ -23,6 +23,7 @@
 
 @property (nonatomic, assign) BOOL parallelizeBuildables;
 @property (nonatomic, assign) BOOL buildImplicitDependencies;
+@property (nonatomic, assign) BOOL useAbsolutePath;
 
 + (SchemeGenerator *)schemeGenerator;
 
