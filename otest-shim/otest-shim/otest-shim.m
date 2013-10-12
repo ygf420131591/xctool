@@ -30,6 +30,28 @@
 #import "dyld-interposing.h"
 #import "dyld_priv.h"
 
+@interface XCToolAssertionHandler : NSAssertionHandler
+@end
+
+@implementation XCToolAssertionHandler
+
+- (void)handleFailureInFunction:(NSString *)functionName
+                           file:(NSString *)fileName
+                     lineNumber:(NSInteger)line
+                    description:(NSString *)format, ...
+{
+  // Format message
+  va_list vl;
+  va_start(vl, format);
+  NSString *msg = [[[NSString alloc] initWithFormat:format arguments:vl] autorelease];
+  va_end(vl);
+
+  // Raise exception
+  [NSException raise:NSInternalInconsistencyException format:@"*** Assertion failure in %@, %@:%lld: %@", functionName, fileName, (long long)line, msg];
+}
+
+@end
+
 static int __stdoutHandle;
 static FILE *__stdout;
 static int __stderrHandle;
@@ -326,6 +348,70 @@ static void XCToolLog_testCaseDidFail(NSDictionary *exceptionInfo)
   });
 }
 
+#pragma mark - XCToolTestCase function declarations
+
+static void XCToolTestCase_setUp(id self, SEL sel);
+static void XCToolTestCase_tearDown(id self, SEL sel);
+
+#pragma mark - setUp
+
+static void XCToolTestCase_setUp(id self, SEL sel)
+{
+  NSAssertionHandler *handler = [[XCToolAssertionHandler alloc] init];
+  [[[NSThread currentThread] threadDictionary] setValue:handler
+                                                 forKey:NSAssertionHandlerKey];
+}
+
+static void SenTestCase_setUp(id self, SEL sel)
+{
+  XCToolTestCase_setUp(self, sel);
+
+  // Call through original implementation
+  objc_msgSend(self, @selector(__SenTestCase_setUp));
+}
+
+static void XCTestCase_setUp(id self, SEL sel)
+{
+  // I don't know why we try calling setUp() on XCTestSuite instances.
+  SEL originalSelector = @selector(__XCTestCase_setUp);
+  if ([self respondsToSelector:originalSelector]) {
+    XCToolTestCase_setUp(self, sel);
+
+    // Call through original implementation
+    objc_msgSend(self, originalSelector);
+  }
+}
+
+#pragma mark - tearDown
+
+static void XCToolTestCase_tearDown(id self, SEL sel)
+{
+  NSAssertionHandler *handler = (NSAssertionHandler *)[[[NSThread currentThread] threadDictionary] valueForKey:NSAssertionHandlerKey];
+  [handler release];
+  [[[NSThread currentThread] threadDictionary] setValue:nil
+                                                 forKey:NSAssertionHandlerKey];
+}
+
+static void SenTestCase_tearDown(id self, SEL sel)
+{
+  XCToolTestCase_tearDown(self, sel);
+
+  // Call through original implementation
+  objc_msgSend(self, @selector(__SenTestCase_tearDown));
+}
+
+static void XCTestCase_tearDown(id self, SEL sel)
+{
+  // I don't know why we try calling tearDown() on XCTestSuite instances.
+  SEL originalSelector = @selector(__XCTestCase_tearDown);
+  if ([self respondsToSelector:originalSelector]) {
+    XCToolTestCase_tearDown(self, sel);
+
+    // Call through original implementation
+    objc_msgSend(self, originalSelector);
+  }
+}
+
 #pragma mark -
 
 static void SaveExitMode(NSDictionary *exitMode)
@@ -489,6 +575,12 @@ static const char *DyldImageStateChangeHandler(enum dyld_image_states state,
       XTSwizzleClassSelectorForFunction(NSClassFromString(@"SenTestLog"),
                                         @selector(testCaseDidFail:),
                                         (IMP)SenTestLog_testCaseDidFail);
+      XTSwizzleClassSelectorForFunction(NSClassFromString(@"SenTestCase"),
+                                        @selector(setUp),
+                                        (IMP)SenTestCase_setUp);
+      XTSwizzleClassSelectorForFunction(NSClassFromString(@"SenTestCase"),
+                                        @selector(tearDown),
+                                        (IMP)SenTestCase_tearDown);
     }
     else if (strstr(info[i].imageFilePath, "XCTest.framework") != NULL) {
       // Since the 'XCTestLog' class now exists, we can swizzle it!
@@ -507,6 +599,12 @@ static const char *DyldImageStateChangeHandler(enum dyld_image_states state,
       XTSwizzleSelectorForFunction(NSClassFromString(@"XCTestLog"),
                                    @selector(testCaseDidFail:withDescription:inFile:atLine:),
                                    (IMP)XCTestLog_testCaseDidFail);
+      XTSwizzleSelectorForFunction(NSClassFromString(@"XCTestCase"),
+                                   @selector(setUp),
+                                   (IMP)XCTestCase_setUp);
+      XTSwizzleSelectorForFunction(NSClassFromString(@"XCTestCase"),
+                                   @selector(tearDown),
+                                   (IMP)XCTestCase_tearDown);
     }
   }
 
