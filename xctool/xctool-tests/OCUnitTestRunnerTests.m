@@ -1,7 +1,7 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 
-#import "iPhoneSimulatorRemoteClient.h"
+#import "DTiPhoneSimulatorRemoteClient.h"
 
 #import "ContainsArray.h"
 #import "EventBuffer.h"
