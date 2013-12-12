@@ -175,11 +175,21 @@ BOOL IsOtestTask(NSTask *task)
     BOOL isOtestQuery = NO;
 
     if ([[task launchPath] hasSuffix:@"usr/bin/sim"]) {
-      // iOS tests get queried through the 'sim' launcher.
+      // iOS logic tests get queried by 'otest-query-ios', by way of
+      // the 'sim' launcher.
       for (NSString *arg in [task arguments]) {
         if ([arg hasSuffix:@"otest-query-ios"]) {
           isOtestQuery = YES;
           break;
+        }
+      }
+
+      if (!isOtestQuery) {
+        // iOS app tests get queried via the test host, by way of the sim
+        // launcher.
+        if ([task environment][@"SIMSHIM_DYLD_INSERT_LIBRARIES"] != nil &&
+            [[task environment][@"SIMSHIM_DYLD_INSERT_LIBRARIES"] hasSuffix:@"otest-query-lib-ios.dylib"]) {
+          isOtestQuery = YES;
         }
       }
     } else if ([[task launchPath] hasSuffix:@"otest-query-osx"]) {

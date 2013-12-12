@@ -178,7 +178,7 @@ typedef void DVTConfinementServiceConnection;
 - (void)stopLocationSimulation;
 - (void)simulateLocationWithLatitude:(id)arg1 longitude:(id)arg2;
 - (void)requestEndWithTimeout:(double)arg1;
-- (BOOL)requestStartWithConfig:(id)arg1 timeout:(double)arg2 error:(id *)arg3;
+- (BOOL)requestStartWithConfig:(id)arg1 timeout:(double)arg2 error:(NSError **)arg3;
 - (BOOL)_setUpSimulatorMessengerWithConfig:(id)arg1 error:(id *)arg2;
 - (id)description;
 - (void)dealloc;
