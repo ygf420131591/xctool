@@ -28,8 +28,8 @@
             buildForAnalyzing = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "28610D591859A2B1003D51B0"
-               BuildableName = "ios-iphoneTests.xctest"
+               BlueprintIdentifier = "28611308185A79D2006ACF3E"
+               BuildableName = "ios-iphoneTests.octest"
                BlueprintName = "ios-iphoneTests"
                ReferencedContainer = "container:ios-iphone.xcodeproj">
             </BuildableReference>
@@ -46,8 +46,8 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "28610D591859A2B1003D51B0"
-               BuildableName = "ios-iphoneTests.xctest"
+               BlueprintIdentifier = "28611308185A79D2006ACF3E"
+               BuildableName = "ios-iphoneTests.octest"
                BlueprintName = "ios-iphoneTests"
                ReferencedContainer = "container:ios-iphone.xcodeproj">
             </BuildableReference>

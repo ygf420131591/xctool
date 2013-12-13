@@ -2,13 +2,13 @@
 //  ios_iphoneTests.m
 //  ios-iphoneTests
 //
-//  Created by Fred Potter on 12/11/13.
+//  Created by Fred Potter on 12/12/13.
 //  Copyright (c) 2013 Facebook, Inc. All rights reserved.
 //
 
-#import <XCTest/XCTest.h>
+#import <SenTestingKit/SenTestingKit.h>
 
-@interface ios_iphoneTests : XCTestCase
+@interface ios_iphoneTests : SenTestCase
 
 @end
 
@@ -28,7 +28,8 @@
 
 - (void)testExample
 {
-    XCTFail(@"No implementation for \"%s\"", __PRETTY_FUNCTION__);
+  NSLog(@"model: %@", [[UIDevice currentDevice] model]);
+  NSLog(@"systemVersion: %@", [[UIDevice currentDevice] systemVersion]);
 }
 
 @end

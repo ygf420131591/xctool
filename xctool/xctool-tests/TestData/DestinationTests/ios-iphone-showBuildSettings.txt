@@ -157,7 +157,7 @@ Build settings for action test and target ios-iphone:
     INSTALL_OWNER = fpotter
     INSTALL_PATH = /Applications
     INSTALL_ROOT = /tmp/ios-iphone.dst
-    IPHONEOS_DEPLOYMENT_TARGET = 7.0
+    IPHONEOS_DEPLOYMENT_TARGET = 6.0
     JAVAC_DEFAULT_FLAGS = -J-Xms64m -J-XX:NewSize=4M -J-Dfile.encoding=UTF8
     JAVA_APP_STUB = /System/Library/Frameworks/JavaVM.framework/Resources/MacOS/JavaApplicationStub
     JAVA_ARCHIVE_CLASSES = YES
