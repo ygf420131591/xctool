@@ -167,7 +167,7 @@ static void KillSimulatorJobs()
   return sessionConfig;
 }
 
-- (BOOL)runMobileInstallationHelperWithArguments:(NSArray *)arguments
+- (BOOL)runMobileInstallationHelperWithArguments:(NSArray *)arguments errorMessage:(NSString **)errorMessage
 {
   NSString *sdkVersion = [_buildSettings[Xcode_SDK_NAME] stringByReplacingOccurrencesOfString:@"iphonesimulator"
                                                                                 withString:@""];
@@ -188,7 +188,17 @@ static void KillSimulatorJobs()
   SimulatorLauncher *launcher = [[[SimulatorLauncher alloc] initWithSessionConfig:sessionConfig
                                                                        deviceName:_deviceName] autorelease];
 
-  return [launcher launchAndWaitForExit];
+  BOOL didStart = [launcher launchAndWaitForExit];
+
+  if (!didStart) {
+    if (launcher.launchError && launcher.launchError.localizedDescription) {
+      *errorMessage = launcher.launchError.localizedDescription;
+    } else {
+      *errorMessage = @"Failed for unknown reason.";
+    }
+  }
+
+  return didStart;
 }
 
 /**
@@ -205,7 +215,9 @@ static void KillSimulatorJobs()
  */
 - (void)runTestsInSimulator:(NSString *)testHostAppPath
           feedOutputToBlock:(void (^)(NSString *))feedOutputToBlock
-             infraSucceeded:(BOOL *)infraSucceeded
+               simDidLaunch:(BOOL *)simDidLaunch
+      simLaunchErrorMessage:(NSString **)simLaunchErrorMessage
+
 {
   NSString *outputPath = MakeTempFileWithPrefix(@"output");
   NSFileHandle *outputHandle = [NSFileHandle fileHandleForReadingAtPath:outputPath];
@@ -227,11 +239,13 @@ static void KillSimulatorJobs()
   [reader stopReading];
   [reader finishReadingToEndOfFile];
 
-  if (simStartedSuccessfully) {
-    *infraSucceeded = YES;
+  if (launcher.launchError && launcher.launchError.localizedDescription) {
+    *simLaunchErrorMessage = launcher.launchError.localizedDescription;
   } else {
-    *infraSucceeded = NO;
+    *simLaunchErrorMessage = nil;
   }
+
+  *simDidLaunch = simStartedSuccessfully;
 }
 
 - (BOOL)uninstallTestHostBundleID:(NSString *)testHostBundleID withError:(NSString **)error
@@ -240,10 +254,13 @@ static void KillSimulatorJobs()
                            REPORTER_MESSAGE_INFO,
                            @"Uninstalling '%@' to get a fresh install ...",
                            testHostBundleID);
+
+  NSString *installationFailureMessage = nil;
   BOOL uninstalled = [self runMobileInstallationHelperWithArguments:@[
                       @"uninstall",
                       testHostBundleID,
-                      ]];
+                      ]
+                                                       errorMessage:&installationFailureMessage];
   if (uninstalled) {
     ReportStatusMessageEnd(_reporters,
                            REPORTER_MESSAGE_INFO,
@@ -257,8 +274,9 @@ static void KillSimulatorJobs()
                            testHostBundleID);
     *error = [NSString stringWithFormat:
               @"Failed to uninstall the test host app '%@' "
-              @"before running tests.",
-              testHostBundleID];
+              @"before running tests: %@",
+              testHostBundleID,
+              installationFailureMessage];
     return NO;
   }
 }
@@ -271,10 +289,13 @@ static void KillSimulatorJobs()
                            REPORTER_MESSAGE_INFO,
                            @"Installing '%@' ...",
                            testHostBundleID);
+
+  NSString *installationFailureMessage = nil;
   BOOL installed = [self runMobileInstallationHelperWithArguments:@[
                     @"install",
                     testHostBundlePath,
-                    ]];
+                    ]
+                                                     errorMessage:&installationFailureMessage];
   if (installed) {
     ReportStatusMessageEnd(_reporters,
                            REPORTER_MESSAGE_INFO,
@@ -287,8 +308,9 @@ static void KillSimulatorJobs()
                            @"Tried to install the test host app '%@' but failed.",
                            testHostBundleID);
     *error = [NSString stringWithFormat:
-              @"Failed to install the test host app '%@'.",
-              testHostBundleID];
+              @"Failed to install the test host app '%@': %@",
+              testHostBundleID,
+              installationFailureMessage];
 
     return NO;
   }
@@ -397,13 +419,17 @@ static void KillSimulatorJobs()
                       REPORTER_MESSAGE_INFO,
                       @"Launching test host and running tests ...");
 
-  BOOL infraSucceeded = NO;
+  BOOL simDidLaunch = NO;
+  NSString *simLaunchErrorMessage = nil;
+
   [self runTestsInSimulator:testHostAppPath
           feedOutputToBlock:outputLineBlock
-             infraSucceeded:&infraSucceeded];
+               simDidLaunch:&simDidLaunch
+      simLaunchErrorMessage:&simLaunchErrorMessage];
 
-  if (!infraSucceeded) {
-    *startupError = @"The simulator failed to start, or the TEST_HOST application failed to run.";
+  if (!simDidLaunch) {
+    *startupError = [NSString stringWithFormat:@"The simulator failed to start, or the TEST_HOST application failed to run%@",
+                     (simLaunchErrorMessage == nil) ? @"." : [@": " stringByAppendingString:simLaunchErrorMessage]];
   }
 }
 
