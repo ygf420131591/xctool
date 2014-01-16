@@ -753,6 +753,25 @@ containsFilesModifiedSince:(NSDate *)sinceDate
   return buildables;
 }
 
+- (NSDictionary *)buildSettingsWithAction:(NSString *)action
+{
+  NSTask *task = CreateTaskInSameProcessGroup();
+  [task setLaunchPath:[XcodeDeveloperDirPath() stringByAppendingPathComponent:@"usr/bin/xcodebuild"]];
+  [task setArguments:
+   [self.subjectXcodeBuildArguments arrayByAddingObjectsFromArray:@[action, @"-showBuildSettings"]]];
+  [task setEnvironment:@{
+                         @"DYLD_INSERT_LIBRARIES" :
+                           [XCToolLibPath() stringByAppendingPathComponent:
+                            @"xcodebuild-fastsettings-shim.dylib"],
+                         @"SHOW_ONLY_BUILD_SETTINGS_FOR_FIRST_BUILDABLE" : @"YES"
+                         }];
+
+  NSDictionary *result = LaunchTaskAndCaptureOutput(task, @"gathering build settings for a target");
+  [task release];
+
+  return BuildSettingsFromOutput(result[@"stdout"]);
+}
+
 /**
  Returns build settings for some target in the scheme.  We don't actually care
  which target's settings are returned, since we only need a few specific values:
@@ -763,24 +782,6 @@ containsFilesModifiedSince:(NSDate *)sinceDate
  */
 - (NSDictionary *)buildSettingsForATarget
 {
-  NSDictionary *(^buildSettingsWithAction)(NSString *) = ^(NSString *action) {
-    NSTask *task = CreateTaskInSameProcessGroup();
-    [task setLaunchPath:[XcodeDeveloperDirPath() stringByAppendingPathComponent:@"usr/bin/xcodebuild"]];
-    [task setArguments:
-     [self.subjectXcodeBuildArguments arrayByAddingObjectsFromArray:@[action, @"-showBuildSettings"]]];
-    [task setEnvironment:@{
-                           @"DYLD_INSERT_LIBRARIES" :
-                             [XCToolLibPath() stringByAppendingPathComponent:
-                              @"xcodebuild-fastsettings-shim.dylib"],
-                           @"SHOW_ONLY_BUILD_SETTINGS_FOR_FIRST_BUILDABLE" : @"YES"
-                           }];
-
-    NSDictionary *result = LaunchTaskAndCaptureOutput(task, @"gathering build settings for a target");
-    [task release];
-    
-    return BuildSettingsFromOutput(result[@"stdout"]);
-  };
-
   // Starting with Xcode 5+, -showBuildSettings is action-dependent.  If you run
   // `build -showBuildSettings`, it returns build settings for targets in the scheme
   // that are marked buildForRunning=YES.  If you run `test -showBuildSettings`,
@@ -803,7 +804,7 @@ containsFilesModifiedSince:(NSDate *)sinceDate
   }
 
   for (NSString *action in actionsToTry) {
-    NSDictionary *settings = buildSettingsWithAction(action);
+    NSDictionary *settings = [self buildSettingsWithAction:action];
 
     if (settings.count == 1) {
       return settings;
