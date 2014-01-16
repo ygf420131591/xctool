@@ -90,14 +90,14 @@
 
 - (void)run
 {
+  NSString *errorMessage = nil;
+
   if (XcodebuildVersion() < 500) {
-    [_standardError printString:@"ERROR: This version of xctool supports only Xcode 5.0 or higher.\n"];
-    _exitStatus = 1;
-    return;
+    errorMessage = @"This version of xctool supports only Xcode 5.0 or higher.";
+    goto Error;
   }
 
   Options *options = [[[Options alloc] init] autorelease];
-  NSString *errorMessage = nil;
 
   NSFileManager *fm = [NSFileManager defaultManager];
   if ([fm isReadableFileAtPath:@".xctool-args"]) {
@@ -106,9 +106,8 @@
                                                           encoding:NSUTF8StringEncoding
                                                              error:&readError];
     if (readError) {
-      [_standardError printString:@"ERROR: Cannot read '.xctool-args' file: %@\n", [readError localizedFailureReason]];
-      _exitStatus = 1;
-      return;
+      errorMessage = [NSString stringWithFormat:@"Cannot read '.xctool-args' file: %@\n", [readError localizedFailureReason]];
+      goto Error;
     }
 
     NSError *JSONError = nil;
@@ -116,36 +115,29 @@
                                                              options:0
                                                                error:&JSONError];
     if (JSONError) {
-      [_standardError printString:@"ERROR: couldn't parse json: %@: %@\n", argumentsString, [JSONError localizedDescription]];
-      _exitStatus = 1;
-      return;
+      errorMessage = [NSString stringWithFormat:@"couldn't parse json: %@: %@\n", argumentsString, [JSONError localizedDescription]];
+      goto Error;
     }
 
     [options consumeArguments:[NSMutableArray arrayWithArray:argumentsList] errorMessage:&errorMessage];
     if (errorMessage != nil) {
-      [_standardError printString:@"ERROR: %@\n", errorMessage];
-      _exitStatus = 1;
-      return;
+      goto Error;
     }
   }
 
   [options consumeArguments:[NSMutableArray arrayWithArray:self.arguments] errorMessage:&errorMessage];
   if (errorMessage != nil) {
-    [_standardError printString:@"ERROR: %@\n", errorMessage];
-    _exitStatus = 1;
-    return;
+    goto Error;
   }
 
   if (options.showHelp) {
     [self printUsage];
-    _exitStatus = 1;
-    return;
+    goto Error;
   }
 
   if (options.showVersion) {
     [_standardOutput printString:@"%@\n", XCToolVersionString];
-    _exitStatus = 0;
-    return;
+    goto Exit;
   }
 
   if (options.showBuildSettings) {
@@ -160,13 +152,11 @@
     [task waitUntilExit];
     _exitStatus = [task terminationStatus];
     [task release];
-    return;
+    goto Exit;
   }
 
   if (![options validateReporterOptions:&errorMessage]) {
-    [_standardError printString:@"ERROR: %@\n\n", errorMessage];
-    _exitStatus = 1;
-    return;
+    goto Error;
   }
 
   for (ReporterTask *reporter in options.reporters) {
@@ -174,9 +164,8 @@
     if (![reporter openWithStandardOutput:_standardOutput
                             standardError:_standardError
                                     error:&error]) {
-      [_standardError printString:@"ERROR: %@\n\n", error];
-      _exitStatus = 1;
-      return;
+      errorMessage = error;
+      goto Error;
     }
   }
 
@@ -185,11 +174,11 @@
   @try {
     XcodeSubjectInfo *xcodeSubjectInfo = nil;
 
+    NSString *validationErrorMessage = nil;
     if (![options validateAndReturnXcodeSubjectInfo:&xcodeSubjectInfo
-                                       errorMessage:&errorMessage]) {
-      [_standardError printString:@"ERROR: %@\n\n", errorMessage];
-      _exitStatus = 1;
-      return;
+                                       errorMessage:&validationErrorMessage]) {
+      errorMessage = validationErrorMessage;
+      goto Error;
     }
 
     for (Action *action in options.actions) {
@@ -219,13 +208,21 @@
       CleanupTemporaryDirectoryForAction();
 
       if (!succeeded) {
-        _exitStatus = 1;
-        break;
+        goto Error;
       }
     }
   } @finally {
     [options.reporters makeObjectsPerformSelector:@selector(close)];
   }
+
+  goto Exit;
+Error:
+  if (errorMessage) {
+    [_standardError printString:@"ERROR: %@\n", errorMessage];
+  }
+  _exitStatus = 1;
+Exit:
+  return;
 }
 
 
