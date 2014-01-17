@@ -110,7 +110,6 @@ static NSTask *OtestShimTask(NSString *platformName,
                                                                         environment:@{}
                                                                      freshSimulator:NO
                                                                        freshInstall:NO
-                                                                      simulatorType:nil
                                                                           reporters:@[]];
 
   NSTask *task = [runner otestTaskWithTestBundle: bundlePath];

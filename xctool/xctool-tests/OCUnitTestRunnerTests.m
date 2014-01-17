@@ -34,7 +34,6 @@ static OCUnitTestRunner *TestRunnerWithTestLists(Class cls, NSDictionary *settin
                                  environment:environment
                               freshSimulator:NO
                                 freshInstall:NO
-                               simulatorType:nil
                                    reporters:@[eventBuffer]] autorelease];
 }
 

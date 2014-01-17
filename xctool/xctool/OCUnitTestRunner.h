@@ -29,7 +29,6 @@
   BOOL _garbageCollection;
   BOOL _freshSimulator;
   BOOL _freshInstall;
-  NSString *_simulatorType;
   NSArray *_reporters;
   NSDictionary *_framework;
 }
@@ -56,7 +55,6 @@
                 environment:(NSDictionary *)environment
              freshSimulator:(BOOL)freshSimulator
                freshInstall:(BOOL)freshInstall
-              simulatorType:(NSString *)simulatorType
                   reporters:(NSArray *)reporters;
 
 - (BOOL)runTests;
