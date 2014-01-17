@@ -16,6 +16,7 @@
 
 #import <SenTestingKit/SenTestingKit.h>
 
+#import "DestinationInfo.h"
 #import "DTiPhoneSimulatorRemoteClient.h"
 #import "FakeTaskManager.h"
 #import "LaunchHandlers.h"
@@ -168,6 +169,55 @@ static Method MethodForClassAndSEL(Class cls, SEL name)
 
   assertThat([[fakes[0] sessionConfig] simulatedDeviceInfoName], equalTo(@"iPhone Retina (4-inch)"));
   assertThat([[fakes[1] sessionConfig] simulatedDeviceInfoName], equalTo(@"iPhone Retina (4-inch)"));
+}
+
+- (void)testCanParseDestinationInfoWithOSXForm
+{
+  NSString *error = nil;
+  DestinationInfo *info;
+
+  info = [DestinationInfo parseFromString:@"platform=OS X,arch=i386" error:&error];
+
+  assertThat(error, nilValue());
+  assertThat(info.platform, equalTo(@"OS X"));
+  assertThat(info.arch, equalTo(@"i386"));
+
+  info = [DestinationInfo parseFromString:@"platform=OS X,arch=x86_64" error:&error];
+
+  assertThat(error, nilValue());
+  assertThat(info.platform, equalTo(@"OS X"));
+  assertThat(info.arch, equalTo(@"x86_64"));
+}
+
+- (void)testCanParseDestinationInfoWithIOSForm
+{
+  NSString *error = nil;
+  DestinationInfo *info;
+
+  info = [DestinationInfo parseFromString:@"platform=iOS,name=Some Name" error:&error];
+
+  assertThat(error, nilValue());
+  assertThat(info.platform, equalTo(@"iOS"));
+  assertThat(info.name, equalTo(@"Some Name"));
+
+  info = [DestinationInfo parseFromString:@"platform=iOS,id=Some ID" error:&error];
+
+  assertThat(error, nilValue());
+  assertThat(info.platform, equalTo(@"iOS"));
+  assertThat(info.identifier, equalTo(@"Some ID"));
+}
+
+- (void)testCanParseDestinationInfoWithIOSSimulatorForm
+{
+  NSString *error = nil;
+  DestinationInfo *info;
+
+  info = [DestinationInfo parseFromString:@"platform=iOS Simulator,name=iPhone Retina (3.5-inch),OS=latest" error:&error];
+
+  assertThat(error, nilValue());
+  assertThat(info.name, equalTo(@"iPhone Retina (3.5-inch)"));
+  assertThat(info.os, equalTo(@"latest"));
+  assertThat(info.platform, equalTo(@"iOS Simulator"));
 }
 
 @end

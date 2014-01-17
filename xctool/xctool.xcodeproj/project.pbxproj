@@ -11,6 +11,8 @@
 		28046D2C16D7603B000AA15C /* Action.m in Sources */ = {isa = PBXBuildFile; fileRef = 28046D2B16D7603B000AA15C /* Action.m */; };
 		28046D2D16D7603B000AA15C /* Action.m in Sources */ = {isa = PBXBuildFile; fileRef = 28046D2B16D7603B000AA15C /* Action.m */; };
 		28046D3016D76665000AA15C /* ActionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 28046D2F16D76665000AA15C /* ActionTests.m */; };
+		280DAD1E1889D49A006DD804 /* DestinationInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 280DAD1D1889D49A006DD804 /* DestinationInfo.m */; };
+		280DAD1F1889D49A006DD804 /* DestinationInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 280DAD1D1889D49A006DD804 /* DestinationInfo.m */; };
 		28302E1E175A8B6900C997B2 /* ArchiveActionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 28302E1D175A8B6900C997B2 /* ArchiveActionTests.m */; };
 		2834799416E199A2003C3B77 /* BuildAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 2834799316E199A2003C3B77 /* BuildAction.m */; };
 		2834799816E199D6003C3B77 /* Options.m in Sources */ = {isa = PBXBuildFile; fileRef = 2834799716E199D6003C3B77 /* Options.m */; };
@@ -178,6 +180,8 @@
 		28046D2A16D7603B000AA15C /* Action.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = Action.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		28046D2B16D7603B000AA15C /* Action.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = Action.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		28046D2F16D76665000AA15C /* ActionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ActionTests.m; sourceTree = "<group>"; };
+		280DAD1C1889D49A006DD804 /* DestinationInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DestinationInfo.h; sourceTree = "<group>"; };
+		280DAD1D1889D49A006DD804 /* DestinationInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DestinationInfo.m; sourceTree = "<group>"; };
 		28302E1D175A8B6900C997B2 /* ArchiveActionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArchiveActionTests.m; sourceTree = "<group>"; };
 		2834799216E199A2003C3B77 /* BuildAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BuildAction.h; sourceTree = "<group>"; };
 		2834799316E199A2003C3B77 /* BuildAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = BuildAction.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
@@ -439,6 +443,8 @@
 				CDD81F4F174EAFDC00F42111 /* EventBuffer.h */,
 				CDD81F50174EAFDC00F42111 /* EventBuffer.m */,
 				28F48A841799D81400068E00 /* EventSink.h */,
+				280DAD1C1889D49A006DD804 /* DestinationInfo.h */,
+				280DAD1D1889D49A006DD804 /* DestinationInfo.m */,
 				287A37DC16C711AE00319E81 /* LineReader.h */,
 				287A37DD16C711AE00319E81 /* LineReader.m */,
 				283CCA4816C2EA3800F2E343 /* main.m */,
@@ -721,6 +727,7 @@
 				283CCAD616C2F10A00F2E343 /* XCTool.m in Sources */,
 				28E9B97F16C2F1C600A52E4D /* XCToolUtil.m in Sources */,
 				28E9B9D716C3275200A52E4D /* OCUnitIOSAppTestRunner.m in Sources */,
+				280DAD1E1889D49A006DD804 /* DestinationInfo.m in Sources */,
 				28E9B9D916C3275200A52E4D /* OCUnitIOSLogicTestRunner.m in Sources */,
 				28E9B9DB16C3275200A52E4D /* OCUnitTestRunner.m in Sources */,
 				287A37DE16C711AF00319E81 /* LineReader.m in Sources */,
@@ -832,6 +839,7 @@
 				AA318BF017E9BA3500BF159E /* TestingFramework.m in Sources */,
 				CD098A2B175EBD20002E0CAC /* AnalyzeAction.m in Sources */,
 				CD5677101766782C003B727C /* BuildStateParser.mm in Sources */,
+				280DAD1F1889D49A006DD804 /* DestinationInfo.m in Sources */,
 				28BB043E17C7FF43004F6C13 /* Buildable.m in Sources */,
 				CDEE9EA1176950DC0026D278 /* BuildStateParserTests.m in Sources */,
 				28869AFC178CEA7600DED56A /* Initializer.m in Sources */,
