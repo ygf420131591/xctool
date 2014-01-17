@@ -205,11 +205,6 @@ NSArray *BucketizeTestCasesByTestClass(NSArray *testCases, int bucketSize)
 {
   return
   @[
-    [Action actionOptionWithName:@"test-sdk"
-                         aliases:nil
-                     description:@"SDK to test with"
-                       paramName:@"SDK"
-                           mapTo:@selector(setTestSDK:)],
     [Action actionOptionWithName:@"only"
                          aliases:nil
                      description:@"SPEC is TARGET[:Class/case[,Class2/case2]]"
@@ -265,7 +260,6 @@ NSArray *BucketizeTestCasesByTestClass(NSArray *testCases, int bucketSize)
 
 - (void)dealloc {
   self.onlyList = nil;
-  self.testSDK = nil;
   [super dealloc];
 }
 
@@ -322,11 +316,6 @@ NSArray *BucketizeTestCasesByTestClass(NSArray *testCases, int bucketSize)
            xcodeSubjectInfo:(XcodeSubjectInfo *)xcodeSubjectInfo
                errorMessage:(NSString **)errorMessage
 {
-  if ([self testSDK] == nil && [options sdk] != nil) {
-    // If specified test SDKs aren't provided, use whatever we got via -sdk.
-    [self setTestSDK:[options sdk]];
-  }
-
   if ([options destination]) {
 
     // If the destination was supplied, pull out the device name
@@ -564,7 +553,6 @@ typedef BOOL (^TestableBlock)(NSArray *reporters);
       TestableExecutionInfo *info = [TestableExecutionInfo infoForTestable:testable
                                                           xcodeSubjectInfo:xcodeSubjectInfo
                                                        xcodebuildArguments:xcodebuildArguments
-                                                                   testSDK:_testSDK
                                                                    cpuType:_cpuType];
 
       @synchronized (self) {

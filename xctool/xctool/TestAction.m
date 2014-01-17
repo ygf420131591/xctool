@@ -38,11 +38,6 @@
 {
   return
   @[
-    [Action actionOptionWithName:@"test-sdk"
-                         aliases:nil
-                     description:@"SDK to test with"
-                       paramName:@"SDK"
-                           mapTo:@selector(setTestSDK:)],
     [Action actionOptionWithName:@"only"
                          aliases:nil
                      description:@"SPEC is TARGET[:Class/case[,Class2/case2]]"
@@ -106,11 +101,6 @@
 - (void)setDeviceName:(NSString *)deviceName
 {
   [_runTestsAction setDeviceName:deviceName];
-}
-
-- (void)setTestSDK:(NSString *)testSDK
-{
-  _runTestsAction.testSDK = testSDK;
 }
 
 - (void)setFreshSimulator:(BOOL)freshSimulator

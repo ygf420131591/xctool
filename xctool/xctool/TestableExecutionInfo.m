@@ -30,7 +30,6 @@
 + (instancetype)infoForTestable:(Testable *)testable
                xcodeSubjectInfo:(XcodeSubjectInfo *)xcodeSubjectInfo
             xcodebuildArguments:(NSArray *)xcodebuildArguments
-                        testSDK:(NSString *)testSDK
                         cpuType:(cpu_type_t)cpuType
 {
   TestableExecutionInfo *info = [[[TestableExecutionInfo alloc] init] autorelease];
@@ -43,7 +42,6 @@
                                                                       symRoot:xcodeSubjectInfo.symRoot
                                                             sharedPrecompsDir:xcodeSubjectInfo.sharedPrecompsDir
                                                                xcodeArguments:xcodebuildArguments
-                                                                      testSDK:testSDK
                                                                         error:&buildSettingsError];
   
   if (buildSettings) {
@@ -84,18 +82,11 @@
                                           symRoot:(NSString *)symRoot
                                 sharedPrecompsDir:(NSString *)sharedPrecompsDir
                                    xcodeArguments:(NSArray *)xcodeArguments
-                                          testSDK:(NSString *)testSDK
                                             error:(NSString **)error
 {
   // Collect build settings for this test target.
   NSTask *settingsTask = CreateTaskInSameProcessGroup();
   [settingsTask setLaunchPath:[XcodeDeveloperDirPath() stringByAppendingPathComponent:@"usr/bin/xcodebuild"]];
-
-  if (testSDK) {
-    // If we were given a test sdk, then force that.  Otherwise, xcodebuild will
-    // default to the SDK set in the project/target.
-    xcodeArguments = ArgumentListByOverriding(xcodeArguments, @"-sdk", testSDK);
-  }
 
   // For Xcode 5, we can pass `test -showBuildSettings` to xcodebuild and get
   // build settings that are specific to the `test` action.  In previous versions,
