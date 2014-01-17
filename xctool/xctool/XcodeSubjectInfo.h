@@ -49,7 +49,7 @@
 /**
  Load subject info for workspace/scheme or project/scheme.
  */
-- (void)loadSubjectInfo;
+- (BOOL)loadSubjectInfoWithErrorMessage:(NSString **)errorMessage;
 
 /**
  * Returns the contents of 'testables' and 'buildablesForTest' with any

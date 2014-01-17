@@ -122,7 +122,7 @@
   [settingsTask release];
   settingsTask = nil;
 
-  NSDictionary *allSettings = BuildSettingsFromOutput(output[@"stdout"]);
+  NSDictionary *allSettings = BuildSettingsFromOutput(output[@"stdout"], output[@"stderr"], nil);
 
   if ([allSettings count] > 1) {
     *error = @"Should only have build settings for a single target.";

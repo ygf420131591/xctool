@@ -30,30 +30,37 @@
 
 static NSString *__tempDirectoryForAction = nil;
 
-NSDictionary *BuildSettingsFromOutput(NSString *output)
+NSDictionary *BuildSettingsFromOutput(NSString *standardOutput, NSString *standardError, NSString **error)
 {
-  NSScanner *scanner = [NSScanner scannerWithString:output];
-  [scanner setCharactersToBeSkipped:nil];
+  NSScanner *stdoutScanner = [NSScanner scannerWithString:standardOutput];
+  [stdoutScanner setCharactersToBeSkipped:nil];
+  NSScanner *stderrScanner = [NSScanner scannerWithString:standardError];
+  [stderrScanner setCharactersToBeSkipped:nil];
 
   NSMutableDictionary *settings = [NSMutableDictionary dictionary];
 
   void (^scanUntilEmptyLine)() = ^{
     // Advance until we hit an empty line.
-    while (![scanner scanString:@"\n" intoString:NULL]) {
-      [scanner scanUpToString:@"\n" intoString:NULL];
-      [scanner scanString:@"\n" intoString:NULL];
+    while (![stdoutScanner scanString:@"\n" intoString:NULL]) {
+      [stdoutScanner scanUpToString:@"\n" intoString:NULL];
+      [stdoutScanner scanString:@"\n" intoString:NULL];
     }
   };
 
-  if ([scanner scanString:@"User defaults from command line:\n" intoString:NULL]) {
+  if ([stderrScanner scanString:@"xcodebuild: error: " intoString:NULL]) {
+    [stderrScanner scanUpToString:@"\n" intoString:error];
+    return nil;
+  }
+
+  if ([stdoutScanner scanString:@"User defaults from command line:\n" intoString:NULL]) {
     scanUntilEmptyLine();
   }
 
-  if ([scanner scanString:@"Build settings from command line:\n" intoString:NULL]) {
+  if ([stdoutScanner scanString:@"Build settings from command line:\n" intoString:NULL]) {
     scanUntilEmptyLine();
   }
   
-  if ([scanner scanString:@"Build settings from configuration file" intoString:NULL]) {
+  if ([stdoutScanner scanString:@"Build settings from configuration file" intoString:NULL]) {
     scanUntilEmptyLine(); 
   }
 
@@ -66,13 +73,13 @@ NSDictionary *BuildSettingsFromOutput(NSString *output)
     //
     // or, if there are spaces in the target name...
     // 'Build settings for action build and target "Some Target Name":'
-    if (!([scanner scanString:@"Build settings for action test and target " intoString:NULL] ||
-          [scanner scanString:@"Build settings for action build and target " intoString:NULL])) {
+    if (!([stdoutScanner scanString:@"Build settings for action test and target " intoString:NULL] ||
+          [stdoutScanner scanString:@"Build settings for action build and target " intoString:NULL])) {
       break;
     }
 
-    [scanner scanUpToString:@":\n" intoString:&target];
-    [scanner scanString:@":\n" intoString:NULL];
+    [stdoutScanner scanUpToString:@":\n" intoString:&target];
+    [stdoutScanner scanString:@":\n" intoString:NULL];
 
     // Target names with spaces will be quoted.
     target = [target stringByTrimmingCharactersInSet:
@@ -80,7 +87,7 @@ NSDictionary *BuildSettingsFromOutput(NSString *output)
 
     for (;;) {
 
-      if ([scanner scanString:@"\n" intoString:NULL]) {
+      if ([stdoutScanner scanString:@"\n" intoString:NULL]) {
         // We know we've reached the end when we see one empty line.
         break;
       }
@@ -89,12 +96,12 @@ NSDictionary *BuildSettingsFromOutput(NSString *output)
       NSString *key = nil;
       NSString *value = nil;
 
-      [scanner scanString:@"    " intoString:NULL];
-      [scanner scanUpToString:@" = " intoString:&key];
-      [scanner scanString:@" = " intoString:NULL];
+      [stdoutScanner scanString:@"    " intoString:NULL];
+      [stdoutScanner scanUpToString:@" = " intoString:&key];
+      [stdoutScanner scanString:@" = " intoString:NULL];
 
-      [scanner scanUpToString:@"\n" intoString:&value];
-      [scanner scanString:@"\n" intoString:NULL];
+      [stdoutScanner scanUpToString:@"\n" intoString:&value];
+      [stdoutScanner scanString:@"\n" intoString:NULL];
 
       targetSettings[key] = (value == nil) ? @"" : value;
     }

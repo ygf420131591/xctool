@@ -16,7 +16,8 @@
 
 #import <Foundation/Foundation.h>
 
-NSDictionary *BuildSettingsFromOutput(NSString *output);
+NSDictionary *BuildSettingsFromOutput(NSString *standardOutput, NSString *standardError, NSString **error);
+
 NSString *XCToolLibPath(void);
 NSString *XCToolLibExecPath(void);
 NSString *XCToolReportersPath(void);

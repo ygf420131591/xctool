@@ -491,8 +491,16 @@
     [[self xcodeBuildArgumentsForSubject] arrayByAddingObjectsFromArray:commonXcodeBuildArguments];
 
   ReportStatusMessageBegin(_reporters, REPORTER_MESSAGE_INFO, @"Loading settings for scheme '%@' ...", _scheme);
-  [xcodeSubjectInfo loadSubjectInfo];
+
+  NSString *loadSubjectInfoErrorMessage = nil;
+  BOOL loadSucceeded = [xcodeSubjectInfo loadSubjectInfoWithErrorMessage:&loadSubjectInfoErrorMessage];
+
   ReportStatusMessageEnd(_reporters, REPORTER_MESSAGE_INFO, @"Loading settings for scheme '%@' ...", _scheme);
+
+  if (!loadSucceeded) {
+    *errorMessage = loadSubjectInfoErrorMessage;
+    return NO;
+  }
 
   for (Action *action in self.actions) {
     BOOL valid = [action validateWithOptions:self

@@ -753,7 +753,7 @@ containsFilesModifiedSince:(NSDate *)sinceDate
   return buildables;
 }
 
-- (NSDictionary *)buildSettingsWithAction:(NSString *)action
+- (NSDictionary *)buildSettingsWithAction:(NSString *)action errorMessage:(NSString **)errorMessage
 {
   NSTask *task = CreateTaskInSameProcessGroup();
   [task setLaunchPath:[XcodeDeveloperDirPath() stringByAppendingPathComponent:@"usr/bin/xcodebuild"]];
@@ -769,7 +769,7 @@ containsFilesModifiedSince:(NSDate *)sinceDate
   NSDictionary *result = LaunchTaskAndCaptureOutput(task, @"gathering build settings for a target");
   [task release];
 
-  return BuildSettingsFromOutput(result[@"stdout"]);
+  return BuildSettingsFromOutput(result[@"stdout"], result[@"stderr"], errorMessage);
 }
 
 /**
@@ -780,7 +780,7 @@ containsFilesModifiedSince:(NSDate *)sinceDate
  If we knew more about Xcode internals, we could probably find a way to query
  these values without calling -showBuildSettings.
  */
-- (NSDictionary *)buildSettingsForATarget
+- (NSDictionary *)buildSettingsForATargetWithErrorMessage:(NSString **)errorMessage
 {
   // Starting with Xcode 5+, -showBuildSettings is action-dependent.  If you run
   // `build -showBuildSettings`, it returns build settings for targets in the scheme
@@ -804,9 +804,12 @@ containsFilesModifiedSince:(NSDate *)sinceDate
   }
 
   for (NSString *action in actionsToTry) {
-    NSDictionary *settings = [self buildSettingsWithAction:action];
+    NSDictionary *settings = [self buildSettingsWithAction:action errorMessage:errorMessage];
 
-    if (settings.count == 1) {
+    if (settings == nil && *errorMessage != nil) {
+      // It failed, but there's an error message.
+      return nil;
+    } else if (settings.count == 1) {
       return settings;
     }
   }
@@ -914,14 +917,20 @@ containsFilesModifiedSince:(NSDate *)sinceDate
     [[[buildActionNode attributeForName:@"buildImplicitDependencies"] stringValue] isEqualToString:@"YES"];
 }
 
-- (void)loadSubjectInfo
+- (BOOL)loadSubjectInfoWithErrorMessage:(NSString **)errorMessage
 {
   assert(self.subjectXcodeBuildArguments != nil);
   assert(self.subjectScheme != nil);
   assert(self.subjectWorkspace != nil || self.subjectProject != nil);
 
   // First we need to know the OBJROOT and SYMROOT settings for the project we're testing.
-  NSDictionary *settings = [self buildSettingsForATarget];
+  NSDictionary *settings = [self buildSettingsForATargetWithErrorMessage:errorMessage];
+
+  if (settings == nil) {
+    // If no settings were returned, then `errorMessage` should have something useful in it.
+    return NO;
+  }
+
   NSDictionary *targetSettings = [settings allValues][0];
   // The following control where our build output goes - we need to make sure we build the tests
   // in the same places as we built the original products - this is what Xcode does.
@@ -948,6 +957,8 @@ containsFilesModifiedSince:(NSDate *)sinceDate
 
   _configurationNameByAction =
     [BuildConfigurationsByActionForSchemePath(matchingSchemePath) retain];
+
+  return YES;
 }
 
 - (Testable *)testableWithTarget:(NSString *)target

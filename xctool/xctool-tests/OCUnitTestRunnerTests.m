@@ -78,7 +78,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"iOS-Application-Test-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
 
   NSMutableDictionary *testSettings = [[allSettings[@"TestProject-LibraryTests2"] mutableCopy] autorelease];
   testSettings[@"TEST_HOST"] = TEST_DATA @"FakeApp.app/FakeAppExe";
@@ -106,7 +108,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"iOS-Application-Test-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
 
   NSMutableDictionary *testSettings = [[allSettings[@"TestProject-LibraryTests2"] mutableCopy] autorelease];
   testSettings[@"TEST_HOST"] = @"/var/empty/whee";
@@ -139,7 +143,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"iOS-Logic-Test-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
   NSDictionary *testSettings = allSettings[@"TestProject-LibraryTests"];
 
   NSArray *launchedTasks;
@@ -174,7 +180,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"OSX-Application-Test-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
 
   NSMutableDictionary *testSettings = [[allSettings[@"TestProject-App-OSXTests"] mutableCopy] autorelease];
   testSettings[@"TEST_HOST"] = TEST_DATA @"FakeApp.app/FakeAppExe";
@@ -199,7 +207,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"OSX-Application-Test-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
 
   NSMutableDictionary *testSettings = [[allSettings[@"TestProject-App-OSXTests"] mutableCopy] autorelease];
   testSettings[@"TEST_HOST"] = @"/var/empty/whee";
@@ -229,7 +239,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"OSX-Logic-Test-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
   NSDictionary *testSettings = allSettings[@"TestProject-Library-OSXTests"];
 
   NSArray *launchedTasks = nil;
@@ -253,7 +265,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"OSX-Logic-Test-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
   NSDictionary *testSettings = allSettings[@"TestProject-Library-OSXTests"];
 
   OCUnitTestRunner *runner = TestRunner([OCUnitTestRunner class], testSettings);
@@ -272,7 +286,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"OSX-Logic-Test-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
   NSDictionary *testSettings = allSettings[@"TestProject-Library-OSXTests"];
 
   OCUnitTestRunner *runner = TestRunner([OCUnitIOSAppTestRunner class], testSettings);
@@ -286,7 +302,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"TestProject-Library-XCTest-OSX-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
   NSDictionary *testSettings = allSettings[@"TestProject-Library-XCTest-OSXTests"];
 
   OCUnitTestRunner *runner = TestRunner([OCUnitTestRunner class], testSettings);
@@ -299,7 +317,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"OSX-Logic-Test-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
   NSDictionary *testSettings = allSettings[@"TestProject-Library-OSXTests"];
 
   OCUnitTestRunner *runner = TestRunnerWithTestList([OCUnitTestRunner class], testSettings, @[@"Cls1/testA", @"Cls2/testB"]);
@@ -335,7 +355,9 @@ static OCUnitTestRunner *TestRunner(Class cls, NSDictionary *settings)
   NSDictionary *allSettings =
   BuildSettingsFromOutput([NSString stringWithContentsOfFile:TEST_DATA @"OSX-Logic-Test-showBuildSettings.txt"
                                                     encoding:NSUTF8StringEncoding
-                                                       error:nil]);
+                                                       error:nil],
+                          @"",
+                          nil);
   NSDictionary *testSettings = allSettings[@"TestProject-Library-OSXTests"];
 
   OCUnitTestRunner *runner = TestRunnerWithTestLists([OCUnitTestRunner class],

@@ -131,7 +131,7 @@
   NSString *output = [NSString stringWithContentsOfFile:TEST_DATA @"TargetNamesWithSpaces-showBuildSettings.txt"
                                                encoding:NSUTF8StringEncoding
                                                   error:nil];
-  NSDictionary *settings = BuildSettingsFromOutput(output);
+  NSDictionary *settings = BuildSettingsFromOutput(output, @"", nil);
   assertThat([settings allKeys][0], equalTo(@"Target Name With Spaces"));
 }
 
@@ -140,7 +140,7 @@
   NSString *output = [NSString stringWithContentsOfFile:TEST_DATA @"BuildSettingsWithUserDefaults.txt"
                                                encoding:NSUTF8StringEncoding
                                                   error:nil];
-  NSDictionary *settings = BuildSettingsFromOutput(output);
+  NSDictionary *settings = BuildSettingsFromOutput(output, @"", nil);
   assertThatBool([[settings allKeys] count] > 0, equalToBool(YES));
 }
 
@@ -149,9 +149,20 @@
   NSString *configOutput = [NSString stringWithContentsOfFile:TEST_DATA @"BuildSettingsWithConfigurationFile.txt"
                                                      encoding:NSUTF8StringEncoding
                                                         error:nil];
-  NSDictionary *settings = BuildSettingsFromOutput(configOutput);
+  NSDictionary *settings = BuildSettingsFromOutput(configOutput, @"", nil);
   NSAssert([settings count] == 1,
            @"Should only have build settings for a single target.");
+}
+
+- (void)testCanParseBuildSettingsWithErrorMessage
+{
+  NSString *configOutput = [NSString stringWithContentsOfFile:TEST_DATA @"BuildSettingsWithError.txt"
+                                                     encoding:NSUTF8StringEncoding
+                                                        error:nil];
+  NSString *error = nil;
+  NSDictionary *settings = BuildSettingsFromOutput(@"", configOutput, &error);
+  STAssertNil(settings, @"There was an error, so we should get no settings.");
+  STAssertEqualObjects(error, @"option 'Destination' requires at least one parameter of the form 'key=value'", @"There should have been an error.");
 }
 
 - (void)testCanParseTestablesFromScheme
@@ -292,7 +303,7 @@
     [subjectInfo setSubjectScheme:[options scheme]];
     [subjectInfo setSubjectXcodeBuildArguments:[options xcodeBuildArgumentsForSubject]];
 
-    [subjectInfo loadSubjectInfo];
+    [subjectInfo loadSubjectInfoWithErrorMessage:nil];
   }];
 
   return [subjectInfo autorelease];
@@ -351,7 +362,7 @@
     [subjectInfo setSubjectScheme:[options scheme]];
     [subjectInfo setSubjectXcodeBuildArguments:[options xcodeBuildArgumentsForSubject]];
     
-    [subjectInfo loadSubjectInfo];
+    [subjectInfo loadSubjectInfoWithErrorMessage:nil];
 
     NSArray *launchedTasks = [[FakeTaskManager sharedManager] launchedTasks];
 

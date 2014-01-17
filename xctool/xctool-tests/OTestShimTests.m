@@ -81,7 +81,7 @@ static NSTask *OtestShimTask(NSString *platformName,
   NSString *output = [NSString stringWithContentsOfFile:settingsPath
                                                encoding:NSUTF8StringEncoding
                                                   error:nil];
-  NSDictionary *allSettings = BuildSettingsFromOutput(output);
+  NSDictionary *allSettings = BuildSettingsFromOutput(output, @"", nil);
   NSMutableDictionary *targetSettings = [NSMutableDictionary
                                          dictionaryWithDictionary:allSettings[targetName]];
 
