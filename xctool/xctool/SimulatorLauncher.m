@@ -48,18 +48,11 @@ static BOOL __didLoadAllPlatforms = NO;
 }
 
 - (id)initWithSessionConfig:(DTiPhoneSimulatorSessionConfig *)sessionConfig
-                 deviceName:(NSString *)deviceName
 {
   if (self = [super init]) {
     NSAssert(__didLoadAllPlatforms,
              @"Must call +[SimulatorLauncher loadAllPlatforms] before "
              @"interacting with DTiPhoneSimulatorRemoteClient.");
-
-    // Set the device type if supplied
-    if (deviceName) {
-      CFPreferencesSetAppValue((CFStringRef)@"SimulateDevice", (CFPropertyListRef)deviceName, (CFStringRef)@"com.apple.iphonesimulator");
-      CFPreferencesAppSynchronize((CFStringRef)@"com.apple.iphonesimulator");
-    }
 
     _session = [[DTiPhoneSimulatorSession alloc] init];
     [_session setSessionConfig:sessionConfig];

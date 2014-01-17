@@ -124,6 +124,7 @@ static void KillSimulatorJobs()
   [sessionConfig setLocalizedClientName:@"xctool"];
   [sessionConfig setSimulatedApplicationLaunchArgs:arguments];
   [sessionConfig setSimulatedApplicationLaunchEnvironment:environment];
+  [sessionConfig setSimulatedDeviceInfoName:_deviceName];
 
   return sessionConfig;
 }
@@ -195,8 +196,7 @@ static void KillSimulatorJobs()
                          arguments:arguments
                        environment:@{}];
 
-  SimulatorLauncher *launcher = [[[SimulatorLauncher alloc] initWithSessionConfig:sessionConfig
-                                                                       deviceName:_deviceName] autorelease];
+  SimulatorLauncher *launcher = [[[SimulatorLauncher alloc] initWithSessionConfig:sessionConfig] autorelease];
 
   BOOL didStart = [launcher launchAndWaitForExit];
 
@@ -239,8 +239,7 @@ static void KillSimulatorJobs()
     [self sessionConfigForRunningTestsWithEnvironment:@{}
                                            outputPath:outputPath];
 
-  SimulatorLauncher *launcher = [[[SimulatorLauncher alloc] initWithSessionConfig:sessionConfig
-                                                                       deviceName:_deviceName] autorelease];
+  SimulatorLauncher *launcher = [[[SimulatorLauncher alloc] initWithSessionConfig:sessionConfig] autorelease];
 
   [reader startReading];
 

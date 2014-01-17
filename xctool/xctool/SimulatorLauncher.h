@@ -31,8 +31,7 @@
 @property (nonatomic, retain) NSError *launchError;
 
 + (void)loadAllPlatforms;
-- (id)initWithSessionConfig:(DTiPhoneSimulatorSessionConfig *)sessionConfig
-                 deviceName:(NSString *)deviceName;
+- (id)initWithSessionConfig:(DTiPhoneSimulatorSessionConfig *)sessionConfig;
 - (BOOL)launchAndWaitForExit;
 
 @end

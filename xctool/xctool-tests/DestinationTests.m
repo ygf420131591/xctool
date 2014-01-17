@@ -48,11 +48,10 @@ static Method MethodForClassAndSEL(Class cls, SEL name)
 
 @interface FakeSimulatorLauncher : NSObject
 
+@property (nonatomic, retain) NSError *launchError;
 @property (nonatomic, retain) DTiPhoneSimulatorSessionConfig *sessionConfig;
-@property (nonatomic, retain) NSString *deviceName;
 
-- (id)initWithSessionConfig:(DTiPhoneSimulatorSessionConfig *)sessionConfig
-                 deviceName:(NSString *)deviceName;
+- (id)initWithSessionConfig:(DTiPhoneSimulatorSessionConfig *)sessionConfig;
 - (BOOL)launchAndWaitForExit;
 
 @end
@@ -60,11 +59,9 @@ static Method MethodForClassAndSEL(Class cls, SEL name)
 @implementation FakeSimulatorLauncher
 
 - (id)initWithSessionConfig:(DTiPhoneSimulatorSessionConfig *)sessionConfig
-                 deviceName:(NSString *)deviceName
 {
   if (self = [super init]) {
     self.sessionConfig = sessionConfig;
-    self.deviceName = deviceName;
   }
   return self;
 }
@@ -166,9 +163,11 @@ static Method MethodForClassAndSEL(Class cls, SEL name)
 {
   NSArray *fakes = [self fakeLaunchersWhenRunWithArguments:@[@"-destination", @"name=iPhone Retina (4-inch)"]
                                                  onProject:@"ios-iphone"];
+  // One for the mobile-installation-helper, one for the actual test.
   assertThatInteger([fakes count], equalToInteger(2));
-  assertThat([fakes[0] deviceName], equalTo(@"iPhone Retina (4-inch)"));
-  assertThat([fakes[1] deviceName], equalTo(@"iPhone Retina (4-inch)"));
+
+  assertThat([[fakes[0] sessionConfig] simulatedDeviceInfoName], equalTo(@"iPhone Retina (4-inch)"));
+  assertThat([[fakes[1] sessionConfig] simulatedDeviceInfoName], equalTo(@"iPhone Retina (4-inch)"));
 }
 
 @end
