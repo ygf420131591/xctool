@@ -107,6 +107,27 @@ static void KillSimulatorJobs()
   return [[_simulatorType lowercaseString] isEqualToString:@"ipad"] ? @2 : @1;
 }
 
+- (DTiPhoneSimulatorSessionConfig *)sessionConfigWithAppSpec:(DTiPhoneSimulatorApplicationSpecifier *)appSpec
+                                                   arguments:(NSArray *)arguments
+                                                 environment:(NSDictionary *)environment
+{
+  NSString *sdkVersion = [_buildSettings[Xcode_SDK_NAME] stringByReplacingOccurrencesOfString:@"iphonesimulator" withString:@""];
+  DTiPhoneSimulatorSystemRoot *systemRoot = [DTiPhoneSimulatorSystemRoot rootWithSDKVersion:sdkVersion];
+  NSAssert(systemRoot != nil, @"Unable to instantiate DTiPhoneSimulatorSystemRoot");
+
+
+  DTiPhoneSimulatorSessionConfig *sessionConfig = [[[DTiPhoneSimulatorSessionConfig alloc] init] autorelease];
+  [sessionConfig setApplicationToSimulateOnStart:appSpec];
+  [sessionConfig setSimulatedSystemRoot:systemRoot];
+  [sessionConfig setSimulatedDeviceFamily:[self simulatedDeviceFamily]];
+  [sessionConfig setSimulatedApplicationShouldWaitForDebugger:NO];
+  [sessionConfig setLocalizedClientName:@"xctool"];
+  [sessionConfig setSimulatedApplicationLaunchArgs:arguments];
+  [sessionConfig setSimulatedApplicationLaunchEnvironment:environment];
+
+  return sessionConfig;
+}
+
 - (DTiPhoneSimulatorSessionConfig *)sessionConfigForRunningTestsWithEnvironment:(NSDictionary *)environment
                                                                      outputPath:(NSString *)outputPath
 {
@@ -126,14 +147,6 @@ static void KillSimulatorJobs()
   DTiPhoneSimulatorApplicationSpecifier *appSpec =
   [DTiPhoneSimulatorApplicationSpecifier specifierWithApplicationPath:testHostAppPath];
 
-  DTiPhoneSimulatorSessionConfig *sessionConfig = [[[DTiPhoneSimulatorSessionConfig alloc] init] autorelease];
-  [sessionConfig setApplicationToSimulateOnStart:appSpec];
-  [sessionConfig setSimulatedSystemRoot:systemRoot];
-  [sessionConfig setSimulatedDeviceFamily:[self simulatedDeviceFamily]];
-  [sessionConfig setSimulatedApplicationShouldWaitForDebugger:NO];
-  
-  [sessionConfig setSimulatedApplicationLaunchArgs:[self testArguments]];
-
   NSMutableDictionary *launchEnvironment = [NSMutableDictionary dictionary];
   [launchEnvironment addEntriesFromDictionary:environment];
   [launchEnvironment addEntriesFromDictionary:@{
@@ -147,11 +160,13 @@ static void KillSimulatorJobs()
    @"XCInjectBundle" : testBundlePath,
    @"XCInjectBundleInto" : testHostPath,
    }];
-  [sessionConfig setSimulatedApplicationLaunchEnvironment:
-   [self otestEnvironmentWithOverrides:launchEnvironment]];
+
+  DTiPhoneSimulatorSessionConfig *sessionConfig =
+    [self sessionConfigWithAppSpec:appSpec
+                         arguments:[self testArguments]
+                       environment:[self otestEnvironmentWithOverrides:launchEnvironment]];
 
   [sessionConfig setSimulatedApplicationStdOutPath:outputPath];
-
   // Don't let anything from STDERR get in our stream.  Normally, once
   // otest-shim gets loaded, we don't have to worry about whatever is coming
   // over STDERR since the shim will redirect all output (including STDERR) into
@@ -161,8 +176,6 @@ static void KillSimulatorJobs()
   // into STDERR.  This happened in --
   // https://github.com/facebook/xctool/issues/224#issuecomment-29288004
   [sessionConfig setSimulatedApplicationStdErrPath:@"/dev/null"];
-
-  [sessionConfig setLocalizedClientName:@"xctool"];
 
   return sessionConfig;
 }
@@ -176,14 +189,11 @@ static void KillSimulatorJobs()
 
   DTiPhoneSimulatorApplicationSpecifier *appSpec = [DTiPhoneSimulatorApplicationSpecifier specifierWithApplicationPath:
                                                     [XCToolLibExecPath() stringByAppendingPathComponent:@"mobile-installation-helper.app"]];
-  DTiPhoneSimulatorSessionConfig *sessionConfig = [[[DTiPhoneSimulatorSessionConfig alloc] init] autorelease];
-  [sessionConfig setApplicationToSimulateOnStart:appSpec];
-  [sessionConfig setSimulatedSystemRoot:systemRoot];
-  [sessionConfig setSimulatedDeviceFamily:[self simulatedDeviceFamily]];
-  [sessionConfig setSimulatedApplicationShouldWaitForDebugger:NO];
-  [sessionConfig setLocalizedClientName:@"xctool"];
-  [sessionConfig setSimulatedApplicationLaunchArgs:arguments];
-  [sessionConfig setSimulatedApplicationLaunchEnvironment:@{}];
+
+  DTiPhoneSimulatorSessionConfig *sessionConfig =
+    [self sessionConfigWithAppSpec:appSpec
+                         arguments:arguments
+                       environment:@{}];
 
   SimulatorLauncher *launcher = [[[SimulatorLauncher alloc] initWithSessionConfig:sessionConfig
                                                                        deviceName:_deviceName] autorelease];
