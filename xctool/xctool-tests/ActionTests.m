@@ -30,6 +30,7 @@
   return @[
            [Action actionOptionWithName:@"help" aliases:@[@"h"] description:@"show help" setFlag:@selector(setShowHelp:)],
            [Action actionOptionWithName:@"name" aliases:nil description:@"set name" paramName:@"NAME" mapTo:@selector(setName:)],
+           [Action actionOptionWithName:@"foo" aliases:nil description:@"set foo" paramName:@"FOO" mapTo:@selector(setFoo:withError:)],
            [Action actionOptionWithMatcher:^(NSString *str){
              return (BOOL)(([str intValue] > 0) ? YES : NO);
            }
@@ -52,6 +53,11 @@
   [self.numbers addObject:@([number intValue])];
 }
 
+- (void)setFoo:(NSString *)foo withError:(NSString **)error
+{
+  *error = @"Foo didn't parse!";
+}
+
 @end
 
 @interface ActionTests : SenTestCase
@@ -64,6 +70,7 @@
   assertThat([FakeAction actionUsage],
              equalTo(@"    -help                      show help\n"
                      @"    -name NAME                 set name\n"
+                     @"    -foo FOO                   set foo\n"
                      @"    NUMBER                     a number\n"));
 }
 
@@ -115,6 +122,21 @@
   assertThatInteger(consumed, equalToInteger(2));
   assertThatInteger(arguments.count, equalToInteger(0));
   assertThat(action.name, equalTo(@"SomeName"));
+}
+
+- (void)testMapOptionCanReturnParseError
+{
+  NSMutableArray *arguments = [NSMutableArray arrayWithArray:@[
+                                                               @"-foo", @"whatever",
+                                                               ]];
+  FakeAction *action = [[[FakeAction alloc] init] autorelease];
+
+  NSString *errorMessage = nil;
+  NSUInteger consumed = [action consumeArguments:arguments errorMessage:&errorMessage];
+
+  assertThat(errorMessage, equalTo(@"Foo didn't parse!"));
+  assertThatInteger(consumed, equalToInteger(0));
+  assertThatInteger(arguments.count, equalToInteger(0));
 }
 
 - (void)testMatcherOptionSetsValue

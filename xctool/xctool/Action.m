@@ -193,6 +193,7 @@
         continue;
       } else if (matchingNamedOption[kActionOptionMapToSelector]) {
         SEL sel = sel_registerName([matchingNamedOption[kActionOptionMapToSelector] UTF8String]);
+
         NSString *nextArgument = arguments.count > 1 ? arguments[1] : nil;
         if(nextArgument) {
           count += 2;
@@ -202,7 +203,28 @@
           [arguments removeAllObjects];
           return 0;
         }
-        objc_msgSend(self, sel, nextArgument);
+
+        NSMethodSignature *methodSignature = [self methodSignatureForSelector:sel];
+        NSAssert(methodSignature != nil, @"%@ doesn't respond to @selector(%s).", self, sel_getName(sel));
+        if ([methodSignature numberOfArguments] == 4) {
+          // Assume selector is like 'setFoo:(id)foo withError:(NSString **)error'.
+
+          NSString *mapToSelectorError = nil;
+          objc_msgSend(self, sel, nextArgument, &mapToSelectorError);
+
+          if (mapToSelectorError) {
+            *errorMessage = mapToSelectorError;
+            [arguments removeAllObjects];
+            return 0;
+          }
+
+        } else if ([methodSignature numberOfArguments] == 3) {
+          // Assume selector is like 'setFoo:(id)foo'.
+          objc_msgSend(self, sel, nextArgument);
+        } else {
+          NSAssert(NO, @"Selector '%s' has unexpected number of arguments.", sel_getName(sel));
+        }
+
         continue;
       }
     }
