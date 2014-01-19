@@ -18,6 +18,8 @@
 
 #import "Action.h"
 
+@class DestinationInfo;
+
 /**
  * Options is a special case of Action.  It's an action that accepts its own params
  * (defined via +[Action options]), but also is the parent of other Actions's.  The
@@ -36,7 +38,7 @@
 @property (nonatomic, retain) NSString *configuration;
 @property (nonatomic, retain) NSString *sdk;
 @property (nonatomic, retain) NSString *arch;
-@property (nonatomic, retain) NSString *destination;
+@property (nonatomic, retain) DestinationInfo *destinationInfo;
 @property (nonatomic, retain) NSString *toolchain;
 @property (nonatomic, retain) NSString *xcconfig;
 @property (nonatomic, retain) NSString *jobs;

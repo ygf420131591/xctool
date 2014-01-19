@@ -220,4 +220,12 @@ static Method MethodForClassAndSEL(Class cls, SEL name)
   assertThat(info.platform, equalTo(@"iOS Simulator"));
 }
 
+- (void)testCanGetCommaSeparatedListFromDestinationInfo
+{
+  NSString *error = nil;
+  DestinationInfo *info = [DestinationInfo parseFromString:@"platform=iOS Simulator,name=iPhone Retina (3.5-inch),OS=latest" error:&error];
+
+  assertThat([info commaSeparatedList], equalTo(@"OS=latest,name=iPhone Retina (3.5-inch),platform=iOS Simulator"));
+}
+
 @end

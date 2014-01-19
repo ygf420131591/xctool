@@ -21,6 +21,7 @@
 #import "BuildAction.h"
 #import "BuildTestsAction.h"
 #import "CleanAction.h"
+#import "DestinationInfo.h"
 #import "ReporterTask.h"
 #import "ReportStatus.h"
 #import "RunTestsAction.h"
@@ -96,7 +97,7 @@
                      description:@"use the destination described by DESTINATION (a comma-separated set of key=value "
                                   "pairs describing the destination to use)"
                        paramName:@"DESTINATION"
-                           mapTo:@selector(setDestination:)],
+                           mapTo:@selector(setDestination:withError:)],
     [Action actionOptionWithName:@"jobs"
                          aliases:nil
                      description:@"number of concurrent build operations to run"
@@ -209,6 +210,18 @@
     NSString *key = [argument substringToIndex:eqRange.location];
     NSString *val = [argument substringFromIndex:eqRange.location + 1];
     _userDefaults[key] = val;
+  }
+}
+
+- (void)setDestination:(NSString *)destination withError:(NSString **)error
+{
+  NSString *parseError = nil;
+  DestinationInfo *di = [DestinationInfo parseFromString:destination error:&parseError];
+
+  if (di) {
+    self.destinationInfo = di;
+  } else {
+    *error = [@"Couldn't parse -destination: " stringByAppendingString:parseError];
   }
 }
 
@@ -538,8 +551,8 @@
     [arguments addObjectsFromArray:@[@"-arch", self.arch]];
   }
 
-  if (self.destination != nil) {
-    [arguments addObjectsFromArray:@[@"-destination", self.destination]];
+  if (self.destinationInfo != nil) {
+    [arguments addObjectsFromArray:@[@"-destination", [self.destinationInfo commaSeparatedList]]];
   }
 
   if (self.toolchain != nil) {

@@ -16,6 +16,7 @@
 
 #import "RunTestsAction.h"
 
+#import "DestinationInfo.h"
 #import "EventBuffer.h"
 #import "EventGenerator.h"
 #import "OCUnitIOSAppTestRunner.h"
@@ -316,10 +317,10 @@ NSArray *BucketizeTestCasesByTestClass(NSArray *testCases, int bucketSize)
            xcodeSubjectInfo:(XcodeSubjectInfo *)xcodeSubjectInfo
                errorMessage:(NSString **)errorMessage
 {
-  if ([options destination]) {
+  if ([options destinationInfo]) {
 
     // If the destination was supplied, pull out the device name
-    NSString *destStr = [options destination];
+    NSString *destStr = [[options destinationInfo] commaSeparatedList];
     NSDictionary *destInfo = ParseDestinationString(destStr, errorMessage);
 
     // Make sure the destination string is formatted well.

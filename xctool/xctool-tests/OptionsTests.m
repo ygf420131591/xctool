@@ -19,6 +19,7 @@
 #import <SenTestingKit/SenTestingKit.h>
 
 #import "Action.h"
+#import "DestinationInfo.h"
 #import "FakeTask.h"
 #import "FakeTaskManager.h"
 #import "Options.h"
@@ -49,7 +50,7 @@
   assertThat(([[Options optionsFrom:@[@"-toolchain", @"SomeToolChain"]] toolchain]), equalTo(@"SomeToolChain"));
   assertThat(([[Options optionsFrom:@[@"-xcconfig", @"something.xcconfig"]] xcconfig]), equalTo(@"something.xcconfig"));
   assertThat(([[Options optionsFrom:@[@"-jobs", @"10"]] jobs]), equalTo(@"10"));
-  assertThat(([[Options optionsFrom:@[@"-destination", @"platform=iOS Simulator"]] destination]), equalTo(@"platform=iOS Simulator"));
+  assertThat(([[[Options optionsFrom:@[@"-destination", @"platform=iOS Simulator"]] destinationInfo] commaSeparatedList]), equalTo(@"platform=iOS Simulator"));
 }
 
 - (void)testReporterOptionsSetupReporters

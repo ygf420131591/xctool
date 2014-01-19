@@ -50,4 +50,9 @@
  */
 + (instancetype)parseFromString:(NSString *)str error:(NSString **)error;
 
+/**
+ Returns the comma-separated form, suitable for passing straight to xcodebuild.
+ */
+- (NSString *)commaSeparatedList;
+
 @end

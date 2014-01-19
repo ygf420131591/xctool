@@ -87,4 +87,24 @@ static NSDictionary *ParsePairsFromDestinationString(NSString *destinationString
   [super dealloc];
 }
 
+- (NSString *)commaSeparatedList
+{
+  NSDictionary *dict = @{@"arch" : self.arch ?: [NSNull null],
+                         @"id" : self.identifier ?: [NSNull null],
+                         @"name" : self.name ?: [NSNull null],
+                         @"platform" : self.platform ?: [NSNull null],
+                         @"OS" : self.os ?: [NSNull null],
+                         };
+
+  NSMutableArray *list = [NSMutableArray array];
+
+  [dict enumerateKeysAndObjectsUsingBlock:^(id key, id val, BOOL *stop){
+    if (val != [NSNull null]) {
+      [list addObject:[NSString stringWithFormat:@"%@=%@", key, val]];
+    }
+  }];
+
+  return [[list sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@","];
+}
+
 @end
