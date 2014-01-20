@@ -16,6 +16,7 @@
 
 #import "TestableExecutionInfo.h"
 
+#import "DestinationInfo.h"
 #import "OCUnitIOSAppTestQueryRunner.h"
 #import "OCUnitIOSLogicTestQueryRunner.h"
 #import "OCUnitOSXAppTestQueryRunner.h"
@@ -30,7 +31,7 @@
 + (instancetype)infoForTestable:(Testable *)testable
                xcodeSubjectInfo:(XcodeSubjectInfo *)xcodeSubjectInfo
             xcodebuildArguments:(NSArray *)xcodebuildArguments
-                        cpuType:(cpu_type_t)cpuType
+                destinationInfo:(DestinationInfo *)destinationInfo
 {
   TestableExecutionInfo *info = [[[TestableExecutionInfo alloc] init] autorelease];
   info.testable = testable;
@@ -53,7 +54,7 @@
 
   NSString *otestQueryError = nil;
   NSArray *testCases = [[self class] queryTestCasesWithBuildSettings:info.buildSettings
-                                                             cpuType:cpuType
+                                                             cpuType:[destinationInfo cpuTypeOrImpliedCpuType]
                                                                error:&otestQueryError];
   if (testCases) {
     info.testCases = testCases;

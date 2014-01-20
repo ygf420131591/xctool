@@ -18,6 +18,7 @@
 
 #import "Testable.h"
 
+@class DestinationInfo;
 @class XcodeSubjectInfo;
 
 /**
@@ -70,5 +71,6 @@
 + (instancetype)infoForTestable:(Testable *)testable
                xcodeSubjectInfo:(XcodeSubjectInfo *)xcodeSubjectInfo
             xcodebuildArguments:(NSArray *)xcodebuildArguments
-                        cpuType:(cpu_type_t)cpuType;
+                destinationInfo:(DestinationInfo *)destinationInfo;
+
 @end

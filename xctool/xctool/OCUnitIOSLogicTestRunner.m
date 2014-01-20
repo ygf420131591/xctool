@@ -16,6 +16,7 @@
 
 #import "OCUnitIOSLogicTestRunner.h"
 
+#import "DestinationInfo.h"
 #import "NSConcreteTask.h"
 #import "TaskUtil.h"
 #import "TestingFramework.h"
@@ -40,7 +41,7 @@
                          @"NSUnbufferedIO" : @"YES",
                          }];
 
-  return [CreateTaskForSimulatorExecutable([self cpuType],
+  return [CreateTaskForSimulatorExecutable([self.destinationInfo cpuTypeOrImpliedCpuType],
                                            version,
                                            launchPath,
                                            args,

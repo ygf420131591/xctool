@@ -19,9 +19,12 @@
 
 #import "TestRunState.h"
 
+@class DestinationInfo;
+
 @interface OCUnitTestRunner : NSObject {
 @public
   NSDictionary *_buildSettings;
+  DestinationInfo *_destinationInfo;
   NSArray *_focusedTestCases;
   NSArray *_allTestCases;
   NSArray *_arguments;
@@ -33,8 +36,8 @@
   NSDictionary *_framework;
 }
 
-@property (nonatomic, assign) cpu_type_t cpuType;
 @property (nonatomic, readonly) NSArray *reporters;
+@property (nonatomic, readonly) DestinationInfo *destinationInfo;
 
 /**
  * Filters a list of test class names to only those that match the
@@ -49,6 +52,7 @@
           senTestInvertScope:(BOOL)senTestInvertScope;
 
 - (id)initWithBuildSettings:(NSDictionary *)buildSettings
+            destinationInfo:(DestinationInfo *)destinationInfo
            focusedTestCases:(NSArray *)focusedTestCases
                allTestCases:(NSArray *)allTestCases
                   arguments:(NSArray *)arguments

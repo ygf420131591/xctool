@@ -4,6 +4,7 @@
 #import "DTiPhoneSimulatorRemoteClient.h"
 
 #import "ContainsArray.h"
+#import "DestinationInfo.h"
 #import "EventBuffer.h"
 #import "FakeTask.h"
 #import "FakeTaskManager.h"
@@ -27,7 +28,12 @@ static OCUnitTestRunner *TestRunnerWithTestLists(Class cls, NSDictionary *settin
 
   EventBuffer *eventBuffer = [[[EventBuffer alloc] init] autorelease];
 
+  DestinationInfo *destinationInfo = [DestinationInfo parseFromString:@"platform=iOS Simulator,name=iPhone Retina (4-inch)"
+                                                                error:nil];
+  NSCAssert(destinationInfo, @"Destination info should parse.");
+
   return [[[cls alloc] initWithBuildSettings:settings
+                             destinationInfo:destinationInfo
                             focusedTestCases:focusedTestCases
                                 allTestCases:allTestCases
                                    arguments:arguments

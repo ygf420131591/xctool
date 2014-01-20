@@ -18,6 +18,7 @@
 
 #import <launch.h>
 
+#import "DestinationInfo.h"
 #import "LineReader.h"
 #import "ReportStatus.h"
 #import "SimulatorLauncher.h"
@@ -119,7 +120,7 @@ static void KillSimulatorJobs()
   [sessionConfig setLocalizedClientName:@"xctool"];
   [sessionConfig setSimulatedApplicationLaunchArgs:arguments];
   [sessionConfig setSimulatedApplicationLaunchEnvironment:environment];
-  [sessionConfig setSimulatedDeviceInfoName:_deviceName];
+  [sessionConfig setSimulatedDeviceInfoName:self.destinationInfo.name];
 
   return sessionConfig;
 }

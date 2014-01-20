@@ -19,6 +19,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 
+#import "DestinationInfo.h"
 #import "ReportStatus.h"
 #import "TestRunState.h"
 #import "XcodeBuildSettings.h"
@@ -74,6 +75,7 @@
 }
 
 - (id)initWithBuildSettings:(NSDictionary *)buildSettings
+            destinationInfo:(DestinationInfo *)destinationInfo
            focusedTestCases:(NSArray *)focusedTestCases
                allTestCases:(NSArray *)allTestCases
                   arguments:(NSArray *)arguments
@@ -84,6 +86,7 @@
 {
   if (self = [super init]) {
     _buildSettings = [buildSettings retain];
+    _destinationInfo = [destinationInfo retain];
     _focusedTestCases = [focusedTestCases retain];
     _allTestCases = [allTestCases retain];
     _arguments = [arguments retain];
@@ -92,7 +95,6 @@
     _freshInstall = freshInstall;
     _reporters = [reporters retain];
     _framework = [FrameworkInfoForTestBundleAtPath([self testBundlePath]) retain];
-    _cpuType = CPU_TYPE_ANY;
   }
   return self;
 }
@@ -100,6 +102,7 @@
 - (void)dealloc
 {
   [_buildSettings release];
+  [_destinationInfo release];
   [_focusedTestCases release];
   [_allTestCases release];
   [_arguments release];

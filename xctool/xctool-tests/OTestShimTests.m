@@ -17,6 +17,7 @@
 #import <SenTestingKit/SenTestingKit.h>
 
 #import "ContainsAssertionFailure.h"
+#import "DestinationInfo.h"
 #import "OCUnitIOSLogicTestRunner.h"
 #import "OCUnitIOSLogicTestQueryRunner.h"
 #import "OCUnitOSXLogicTestRunner.h"
@@ -102,8 +103,13 @@ static NSTask *OtestShimTask(NSString *platformName,
   // the latest available SDK.
   targetSettings[Xcode_SDK_NAME] = [GetAvailableSDKsAndAliases() objectForKey:[platformName lowercaseString]];
 
+  DestinationInfo *destinationInfo = [DestinationInfo parseFromString:@"platform=iOS Simulator,name=iPhone Retina (4-inch)"
+                                                                error:nil];
+  NSCAssert(destinationInfo, @"Destination info should parse.");
+
   // set up an OCUnitIOSLogicTestRunner
   OCUnitIOSLogicTestRunner *runner = [[testRunnerClass alloc] initWithBuildSettings:targetSettings
+                                                                    destinationInfo:destinationInfo
                                                                    focusedTestCases:focusedTests
                                                                        allTestCases:allTests
                                                                           arguments:@[]

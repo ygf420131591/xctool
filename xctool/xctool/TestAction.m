@@ -98,11 +98,6 @@
   [super dealloc];
 }
 
-- (void)setDeviceName:(NSString *)deviceName
-{
-  [_runTestsAction setDeviceName:deviceName];
-}
-
 - (void)setFreshSimulator:(BOOL)freshSimulator
 {
   [_runTestsAction setFreshSimulator:freshSimulator];

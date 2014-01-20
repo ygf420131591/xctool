@@ -107,4 +107,10 @@ static NSDictionary *ParsePairsFromDestinationString(NSString *destinationString
   return [[list sortedArrayUsingSelector:@selector(compare:)] componentsJoinedByString:@","];
 }
 
+- (cpu_type_t)cpuTypeOrImpliedCpuType
+{
+  // We're going to hard-code for now, but will come back and implement in a later diff.
+  return CPU_TYPE_I386;
+}
+
 @end
