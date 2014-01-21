@@ -108,17 +108,14 @@
   //
   // Overriding CFFIXED_USER_HOME should have no consequences, since otest-query
   // doesn't really run any app code or test code.
-  NSString *tempHome = MakeTemporaryDirectory(@"otest-query-CFFIXED_USER_HOME-XXXXXX");
+
+  NSString *tempHome = [NSTemporaryDirectory() stringByAppendingPathComponent:
+                        [NSString stringWithFormat:@"otest-query-CFFIXED_USER_HOME-%lx", random()]];
   NSMutableDictionary *newEnv = [NSMutableDictionary dictionaryWithDictionary:task.environment];
   newEnv[@"CFFIXED_USER_HOME"] = tempHome;
   [task setEnvironment:newEnv];
 
   NSDictionary *output = LaunchTaskAndCaptureOutput(task, @"running otest-query");
-
-  NSError *removeError = nil;
-  BOOL removeSucceeded = [[NSFileManager defaultManager] removeItemAtPath:tempHome
-                                                                    error:&removeError];
-  NSAssert(removeSucceeded, @"Failed to remove temp dir: %@", [removeError localizedFailureReason]);
 
   int terminationStatus = [task terminationStatus];
   [task release];
