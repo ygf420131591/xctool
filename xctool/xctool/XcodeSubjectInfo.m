@@ -97,6 +97,10 @@ static NSDictionary *BuildConfigurationsByActionForSchemePath(NSString *schemePa
   return results;
 }
 
+@interface XcodeSubjectInfo ()
+@property (nonatomic, copy) NSDictionary *configurationNameByAction;
+@end
+
 @implementation XcodeSubjectInfo
 
 + (NSArray *)projectPathsInWorkspace:(NSString *)workspacePath
@@ -461,11 +465,23 @@ containsFilesModifiedSince:(NSDate *)sinceDate
 
 - (void)dealloc
 {
-  self.objRoot = nil;
-  self.symRoot = nil;
-  self.testables = nil;
-  self.buildablesForTest = nil;
   [_configurationNameByAction release];
+
+  [_subjectWorkspace release];
+  [_subjectProject release];
+  [_subjectScheme release];
+  [_subjectXcodeBuildArguments release];
+
+  [_objRoot release];
+  [_symRoot release];
+  [_sharedPrecompsDir release];
+  [_effectivePlatformName release];
+  [_targetedDeviceFamily release];
+  [_testables release];
+  [_buildablesForTest release];
+  
+  [_buildables release];
+
   [super dealloc];
 }
 
@@ -767,7 +783,7 @@ containsFilesModifiedSince:(NSDate *)sinceDate
     NSTask *task = CreateTaskInSameProcessGroup();
     [task setLaunchPath:[XcodeDeveloperDirPath() stringByAppendingPathComponent:@"usr/bin/xcodebuild"]];
     [task setArguments:
-     [self.subjectXcodeBuildArguments arrayByAddingObjectsFromArray:@[action, @"-showBuildSettings"]]];
+     [_subjectXcodeBuildArguments arrayByAddingObjectsFromArray:@[action, @"-showBuildSettings"]]];
     [task setEnvironment:@{
                            @"DYLD_INSERT_LIBRARIES" :
                              [XCToolLibPath() stringByAppendingPathComponent:
@@ -824,9 +840,9 @@ containsFilesModifiedSince:(NSDate *)sinceDate
 {
   NSString *matchingSchemePath = nil;
 
-  NSArray *schemePaths = [XcodeSubjectInfo schemePathsInWorkspace:self.subjectWorkspace];
+  NSArray *schemePaths = [XcodeSubjectInfo schemePathsInWorkspace:_subjectWorkspace];
   for (NSString *schemePath in schemePaths) {
-    if ([schemePath hasSuffix:[NSString stringWithFormat:@"/%@.xcscheme", self.subjectScheme]]) {
+    if ([schemePath hasSuffix:[NSString stringWithFormat:@"/%@.xcscheme", _subjectScheme]]) {
       matchingSchemePath = schemePath;
     }
   }
@@ -838,9 +854,9 @@ containsFilesModifiedSince:(NSDate *)sinceDate
 {
   NSString *matchingSchemePath = nil;
 
-  NSArray *schemePaths = [XcodeSubjectInfo schemePathsInContainer:self.subjectProject];
+  NSArray *schemePaths = [XcodeSubjectInfo schemePathsInContainer:_subjectProject];
   for (NSString *schemePath in schemePaths) {
-    if ([schemePath hasSuffix:[NSString stringWithFormat:@"/%@.xcscheme", self.subjectScheme]]) {
+    if ([schemePath hasSuffix:[NSString stringWithFormat:@"/%@.xcscheme", _subjectScheme]]) {
       matchingSchemePath = schemePath;
     }
   }
@@ -858,7 +874,7 @@ containsFilesModifiedSince:(NSDate *)sinceDate
 
   // It's possible that the scheme references projects that aren't part of the workspace.  When
   // Xcode encounters these, it just skips them so we'll do the same.
-  NSSet *projectPathsInWorkspace = [NSSet setWithArray:[XcodeSubjectInfo projectPathsInWorkspace:self.subjectWorkspace]];
+  NSSet *projectPathsInWorkspace = [NSSet setWithArray:[XcodeSubjectInfo projectPathsInWorkspace:_subjectWorkspace]];
   BOOL (^workspaceContainsProject)(Buildable *) = ^(Buildable *item) {
     return [projectPathsInWorkspace containsObject:item.projectPath];
   };
@@ -889,8 +905,8 @@ containsFilesModifiedSince:(NSDate *)sinceDate
 
   self.buildables = [[self class] buildablesInSchemePath:schemePath
                                                     basePath:BasePathFromSchemePath(schemePath)];
-  self.buildablesForTest = [self.buildables objectsAtIndexes:
-                            [self.buildables indexesOfObjectsPassingTest:
+  self.buildablesForTest = [_buildables objectsAtIndexes:
+                            [_buildables indexesOfObjectsPassingTest:
                              ^BOOL(Buildable *obj, NSUInteger idx, BOOL *stop) {
                                return obj.buildForTesting;
                              }]];
@@ -920,9 +936,9 @@ containsFilesModifiedSince:(NSDate *)sinceDate
 
 - (void)loadSubjectInfo
 {
-  assert(self.subjectXcodeBuildArguments != nil);
-  assert(self.subjectScheme != nil);
-  assert(self.subjectWorkspace != nil || self.subjectProject != nil);
+  assert(_subjectXcodeBuildArguments);
+  assert(_subjectScheme);
+  assert(_subjectWorkspace || _subjectProject);
 
   // First we need to know the OBJROOT and SYMROOT settings for the project we're testing.
   NSDictionary *settings = [self buildSettingsForATarget];
@@ -937,13 +953,13 @@ containsFilesModifiedSince:(NSDate *)sinceDate
   
   NSString *matchingSchemePath = nil;
 
-  if (self.subjectWorkspace) {
+  if (_subjectWorkspace) {
     matchingSchemePath = [self matchingSchemePathForWorkspace];
   } else {
     matchingSchemePath = [self matchingSchemePathForProject];
   }
 
-  if (self.subjectWorkspace) {
+  if (_subjectWorkspace) {
     [self populateBuildablesAndTestablesForWorkspaceWithSchemePath:matchingSchemePath];
   } else {
     [self populateBuildablesAndTestablesForProjectWithSchemePath:matchingSchemePath];
@@ -957,7 +973,7 @@ containsFilesModifiedSince:(NSDate *)sinceDate
 
 - (Testable *)testableWithTarget:(NSString *)target
 {
-  for (Testable *testable in self.testables) {
+  for (Testable *testable in _testables) {
     if ([testable.target isEqualToString:target]) {
       return testable;
     }

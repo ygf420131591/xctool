@@ -49,11 +49,7 @@ typedef enum {
 
 } BucketBy;
 
-@interface RunTestsAction : Action {
-  int _logicTestBucketSize;
-  int _appTestBucketSize;
-  BucketBy _bucketBy;
-}
+@interface RunTestsAction : Action
 
 @property (nonatomic, assign) BOOL freshSimulator;
 @property (nonatomic, assign) BOOL resetSimulator;
@@ -67,9 +63,9 @@ typedef enum {
 @property (nonatomic, copy) NSString *deviceName;
 @property (nonatomic, copy) NSString *OSVersion;
 
-- (void)setLogicTestBucketSize:(NSString *)str;
-- (void)setAppTestBucketSize:(NSString *)str;
-- (void)setBucketBy:(NSString *)str;
+- (void)setLogicTestBucketSizeValue:(NSString *)str;
+- (void)setAppTestBucketSizeValue:(NSString *)str;
+- (void)setBucketByValue:(NSString *)str;
 
 @end
 

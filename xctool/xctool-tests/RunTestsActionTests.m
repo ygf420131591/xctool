@@ -544,9 +544,9 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
        [TestUtil runWithFakeStreams:tool];
 
        assertThat(runner, notNilValue());
-       assertThat(runner->_arguments,
+       assertThat([runner valueForKey:@"arguments"],
                   equalTo(@[@"-RunArg", @"RunArgValue"]));
-       assertThat(runner->_environment,
+       assertThat([runner valueForKey:@"environment"],
                   equalTo(@{@"RunEnvKey" : @"RunEnvValue"}));
      }];
 
@@ -598,9 +598,9 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
        [TestUtil runWithFakeStreams:tool];
 
        assertThat(runner, notNilValue());
-       assertThat(runner->_arguments,
+       assertThat([runner valueForKey:@"arguments"],
                   equalTo(@[@"-TestArg", @"TestArgValue"]));
-       assertThat(runner->_environment,
+       assertThat([runner valueForKey:@"environment"],
                   equalTo(@{@"TestEnvKey" : @"TestEnvValue"}));
      }];
 
@@ -652,9 +652,9 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
        [TestUtil runWithFakeStreams:tool];
 
        assertThat(runner, notNilValue());
-       assertThat(runner->_arguments,
+       assertThat([runner valueForKey:@"arguments"],
                   equalTo(@[]));
-       assertThat(runner->_environment,
+       assertThat([runner valueForKey:@"environment"],
                   equalTo(@{
                           @"RunEnvKey" : @"RunEnvValue",
                           @"ARCHS" : @"x86_64",

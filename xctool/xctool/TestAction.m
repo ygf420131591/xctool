@@ -106,9 +106,10 @@
   return self;
 }
 
-- (void)dealloc {
-  self.buildTestsAction = nil;
-  self.runTestsAction = nil;
+- (void)dealloc
+{
+  [_buildTestsAction release];
+  [_runTestsAction release];
   [super dealloc];
 }
 
@@ -144,17 +145,17 @@
 
 - (void)setLogicTestBucketSize:(NSString *)bucketSize
 {
-  [_runTestsAction setLogicTestBucketSize:bucketSize];
+  [_runTestsAction setLogicTestBucketSizeValue:bucketSize];
 }
 
 - (void)setAppTestBucketSize:(NSString *)bucketSize
 {
-  [_runTestsAction setAppTestBucketSize:bucketSize];
+  [_runTestsAction setAppTestBucketSizeValue:bucketSize];
 }
 
 - (void)setBucketBy:(NSString *)str
 {
-  [_runTestsAction setBucketBy:str];
+  [_runTestsAction setBucketByValue:str];
 }
 
 - (void)setSkipDependencies:(BOOL)skipDependencies

@@ -26,7 +26,7 @@
 {
   NSString *version = [_buildSettings[Xcode_SDK_NAME] stringByReplacingOccurrencesOfString:@"iphonesimulator" withString:@""];
 
-  return CreateTaskForSimulatorExecutable([self cpuType],
+  return CreateTaskForSimulatorExecutable(_cpuType,
                                           version,
                                           [XCToolLibExecPath() stringByAppendingPathComponent:@"otest-query-ios"],
                                           @[],

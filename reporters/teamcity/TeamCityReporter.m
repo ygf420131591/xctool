@@ -19,7 +19,7 @@
 - (id)init
 {
   if (self = [super init]) {
-    self.totalTests = 0;
+    _totalTests = 0;
   }
   return self;
 }
@@ -38,7 +38,7 @@
 
 - (void)beginTest:(NSDictionary *)event
 {
-  self.totalTests += 1;
+  _totalTests += 1;
   NSString *testNameWithMethodName = [NSString stringWithFormat:@"%@.%@",event[kReporter_EndTest_ClassNameKey],event[kReporter_EndTest_MethodNameKey]];
   NSLog(@"##teamcity[testStarted name='%@']",[TeamCityStatusMessageGenerator escapeCharacter:testNameWithMethodName]);
 }
@@ -72,11 +72,10 @@
 
 - (void)didFinishReporting
 {
-    
-  if (self.totalTests == 0) {
+  if (_totalTests == 0) {
     NSLog(@"##teamcity[buildStatus status='FAILURE' text='No tests suites executed.']");
   }
-  self.totalTests = 0;
+  _totalTests = 0;
 }
 
 @end
