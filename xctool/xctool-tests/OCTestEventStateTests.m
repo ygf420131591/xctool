@@ -39,16 +39,16 @@
 
 - (void)testInitWithInvalidInputName
 {
-  STAssertThrowsSpecific([[[OCTestEventState alloc] initWithInputName:@"ATestClassaTestMethod"
-                                                            reporters: @[]] autorelease],
+  STAssertThrowsSpecific([[OCTestEventState alloc] initWithInputName:@"ATestClassaTestMethod"
+                                                            reporters: @[]],
                          NSException, @"Invalid class name should have raised exception");
 }
 
 - (void)testPublishFromStarted
 {
-  EventBuffer *eventBuffer = [[[EventBuffer alloc] init] autorelease];
-  OCTestEventState *state = [[[OCTestEventState alloc] initWithInputName:@"ATestClass/aTestMethod"
-                                                               reporters:@[eventBuffer]] autorelease];
+  EventBuffer *eventBuffer = [[EventBuffer alloc] init];
+  OCTestEventState *state = [[OCTestEventState alloc] initWithInputName:@"ATestClass/aTestMethod"
+                                                               reporters:@[eventBuffer]];
 
   assertThatBool(state.isStarted, equalToBool(NO));
   assertThatBool(state.isFinished, equalToBool(NO));

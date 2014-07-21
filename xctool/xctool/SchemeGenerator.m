@@ -85,7 +85,8 @@
                           attributes:@{}
                                error:&err];
   if (err) {
-    goto err;
+    NSLog(@"Error creating temporary workspace: %@", err.localizedFailureReason);
+    return NO;
   }
 
   [[[self _workspaceDocument] XMLStringWithOptions:NSXMLNodePrettyPrint]
@@ -94,7 +95,8 @@
    encoding:NSUTF8StringEncoding
    error:&err];
   if (err) {
-    goto err;
+    NSLog(@"Error creating temporary workspace: %@", err.localizedFailureReason);
+    return NO;
   }
 
   NSString * schemeDirPath = [workspacePath stringByAppendingPathComponent:@"xcshareddata/xcschemes"];
@@ -103,7 +105,8 @@
                           attributes:@{}
                                error:&err];
   if (err) {
-    goto err;
+    NSLog(@"Error creating temporary workspace: %@", err.localizedFailureReason);
+    return NO;
   }
 
   NSString *schemePath = [schemeDirPath stringByAppendingPathComponent:
@@ -114,14 +117,11 @@
    encoding:NSUTF8StringEncoding
    error:nil];
   if (err) {
-    goto err;
+    NSLog(@"Error creating temporary workspace: %@", err.localizedFailureReason);
+    return NO;
   }
 
   return YES;
-
-err:
-  NSLog(@"Error creating temporary workspace: %@", err.localizedFailureReason);
-  return NO;
 }
 
 - (NSXMLDocument *)_workspaceDocument
