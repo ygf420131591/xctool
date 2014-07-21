@@ -89,7 +89,6 @@ static NSArray *readOutputs(int *fildes, int sz) {
 
     NSString *str = [[NSString alloc] initWithBytes:dataPtr length:dataSz encoding:NSUTF8StringEncoding];
     [outputs addObject:str];
-    [str release];
 
     dispatch_release(data[i]);
     dispatch_release(contig);
@@ -226,7 +225,6 @@ void LaunchTaskAndFeedOuputLinesToBlock(NSTask *task, NSString *description, voi
         @autoreleasepool {
           NSString *str = [[NSString alloc] initWithBytes:readBuffer length:bytesRead encoding:NSUTF8StringEncoding];
           [buffer appendString:str];
-          [str release];
 
           processBuffer();
         }
@@ -247,7 +245,6 @@ void LaunchTaskAndFeedOuputLinesToBlock(NSTask *task, NSString *description, voi
   }
 
   [task waitUntilExit];
-  [buffer release];
 }
 
 NSTask *CreateTaskInSameProcessGroupWithArch(cpu_type_t arch)

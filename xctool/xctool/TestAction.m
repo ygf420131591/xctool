@@ -22,8 +22,8 @@
 
 @interface TestAction ()
 
-@property (nonatomic, retain) BuildTestsAction *buildTestsAction;
-@property (nonatomic, retain) RunTestsAction *runTestsAction;
+@property (nonatomic, strong) BuildTestsAction *buildTestsAction;
+@property (nonatomic, strong) RunTestsAction *runTestsAction;
 
 @end
 
@@ -106,12 +106,6 @@
   return self;
 }
 
-- (void)dealloc
-{
-  [_buildTestsAction release];
-  [_runTestsAction release];
-  [super dealloc];
-}
 
 - (void)setDeviceName:(NSString *)deviceName
 {

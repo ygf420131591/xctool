@@ -65,7 +65,7 @@
   DTiPhoneSimulatorApplicationSpecifier *appSpec = [DTiPhoneSimulatorApplicationSpecifier specifierWithApplicationBundleIdentifier:@"com.apple.unknown"];
   DTiPhoneSimulatorSystemRoot *systemRoot = [simInfo systemRootForSimulatedSdk];
 
-  DTiPhoneSimulatorSessionConfig *sessionConfig = [[[DTiPhoneSimulatorSessionConfig alloc] init] autorelease];
+  DTiPhoneSimulatorSessionConfig *sessionConfig = [[DTiPhoneSimulatorSessionConfig alloc] init];
   [sessionConfig setApplicationToSimulateOnStart:appSpec];
   [sessionConfig setDevice:[simInfo simulatedDevice]];
   [sessionConfig setRuntime:[simInfo simulatedRuntime]];
@@ -77,8 +77,8 @@
   [sessionConfig setSimulatedDeviceInfoName:[simInfo simulatedDeviceInfoName]];
   [sessionConfig setSimulatedSystemRoot:systemRoot];
 
-  SimulatorLauncher *launcher = [[[SimulatorLauncher alloc] initWithSessionConfig:sessionConfig
-                                                                       deviceName:[simInfo simulatedDeviceInfoName]] autorelease];
+  SimulatorLauncher *launcher = [[SimulatorLauncher alloc] initWithSessionConfig:sessionConfig
+                                                                       deviceName:[simInfo simulatedDeviceInfoName]];
 
   BOOL simStartedSuccessfully = [launcher launchAndWaitForStart] || [simInfo simulatedDevice].state == SimDeviceStateBooted;
   if (!simStartedSuccessfully && error) {

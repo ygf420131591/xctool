@@ -172,14 +172,6 @@ NSArray *BucketizeTestCasesByTestClass(NSArray *testCases, int bucketSize)
   return self;
 }
 
-- (void)dealloc
-{
-  [_testSDK release];
-  [_onlyList release];
-  [_deviceName release];
-  [_OSVersion release];
-  [super dealloc];
-}
 
 - (void)addOnly:(NSString *)argument
 {
@@ -294,7 +286,7 @@ NSArray *BucketizeTestCasesByTestClass(NSArray *testCases, int bucketSize)
       Testable *matchingTestable = [xcodeSubjectInfo testableWithTarget:only[@"target"]];
 
       if (matchingTestable) {
-        Testable *newTestable = [[matchingTestable copy] autorelease];
+        Testable *newTestable = [matchingTestable copy];
 
         if (only[@"senTestList"] != [NSNull null]) {
           newTestable.senTestList = only[@"senTestList"];
@@ -398,7 +390,7 @@ typedef BOOL (^TestableBlock)(NSArray *reporters);
               forTestableExecutionInfo:(TestableExecutionInfo *)testableExecutionInfo
                              succeeded:(BOOL)succeeded
 {
-  return [[^(NSArray *reporters){
+  return [^(NSArray *reporters){
     PublishEventToReporters(reporters,
                             [[self class] eventForBeginOCUnitFromTestableExecutionInfo:testableExecutionInfo action:self]);
 
@@ -408,7 +400,7 @@ typedef BOOL (^TestableBlock)(NSArray *reporters);
                                                                            succeeded:succeeded
                                                                        failureReason:error]);
     return succeeded;
-  } copy] autorelease];
+  } copy];
 }
 
 - (TestableBlock)blockForTestable:(Testable *)testable
@@ -421,8 +413,8 @@ typedef BOOL (^TestableBlock)(NSArray *reporters);
                       environment:(NSDictionary *)environment
                   testRunnerClass:(Class)testRunnerClass
 {
-  return [[^(NSArray *reporters) {
-    OCUnitTestRunner *testRunner = [[[testRunnerClass alloc]
+  return [^(NSArray *reporters) {
+    OCUnitTestRunner *testRunner = [[testRunnerClass alloc]
                                      initWithBuildSettings:testableExecutionInfo.buildSettings
                                      focusedTestCases:focusedTestCases
                                      allTestCases:allTestCases
@@ -431,7 +423,7 @@ typedef BOOL (^TestableBlock)(NSArray *reporters);
                                      freshSimulator:_freshSimulator
                                      resetSimulator:_resetSimulator
                                      freshInstall:_freshInstall
-                                     reporters:reporters] autorelease];
+                                     reporters:reporters];
     [testRunner setCpuType:_cpuType];
 
     if ([testRunner isKindOfClass:[OCUnitIOSAppTestRunner class]]) {
@@ -460,7 +452,7 @@ typedef BOOL (^TestableBlock)(NSArray *reporters);
                                                                        failureReason:nil]);
 
     return succeeded;
-  } copy] autorelease];
+  } copy];
 }
 
 - (BOOL)runTestables:(NSArray *)testables
@@ -598,7 +590,7 @@ typedef BOOL (^TestableBlock)(NSArray *reporters);
   }
 
   __block BOOL succeeded = YES;
-  __block NSMutableArray *bundlesInProgress = [NSMutableArray array];
+  __weak NSMutableArray *bundlesInProgress = [NSMutableArray array];
 
   void (^runTestableBlockAndSaveSuccess)(TestableBlock, NSString *) = ^(TestableBlock block, NSString *blockAnnotation) {
     NSArray *reporters;

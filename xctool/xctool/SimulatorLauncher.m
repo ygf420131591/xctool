@@ -30,9 +30,9 @@ static BOOL __didLoadAllPlatforms = NO;
 @property (nonatomic, assign) BOOL didQuit;
 @property (nonatomic, assign) BOOL didFailToStart;
 @property (nonatomic, assign) BOOL didStart;
-@property (nonatomic, retain) NSError *didEndWithError;
-@property (nonatomic, retain) DTiPhoneSimulatorSession *session;
-@property (nonatomic, retain) NSError *launchError;
+@property (nonatomic, strong) NSError *didEndWithError;
+@property (nonatomic, strong) DTiPhoneSimulatorSession *session;
+@property (nonatomic, strong) NSError *launchError;
 @end
 
 @implementation SimulatorLauncher
@@ -66,7 +66,7 @@ static BOOL __didLoadAllPlatforms = NO;
 
     // Set the device type if supplied
     if (deviceName) {
-      CFPreferencesSetAppValue((CFStringRef)@"SimulateDevice", (CFPropertyListRef)deviceName, (CFStringRef)@"com.apple.iphonesimulator");
+      CFPreferencesSetAppValue((CFStringRef)@"SimulateDevice", (__bridge CFPropertyListRef)deviceName, (CFStringRef)@"com.apple.iphonesimulator");
       CFPreferencesAppSynchronize((CFStringRef)@"com.apple.iphonesimulator");
     }
 
@@ -77,13 +77,6 @@ static BOOL __didLoadAllPlatforms = NO;
   return self;
 }
 
-- (void)dealloc
-{
-  [_session release];
-  [_launchError release];
-  [_didEndWithError release];
-  [super dealloc];
-}
 
 - (BOOL)launchAndWaitForExit
 {
@@ -118,7 +111,7 @@ static BOOL __didLoadAllPlatforms = NO;
 - (void)session:(DTiPhoneSimulatorSession *)session didEndWithError:(NSError *)error
 {
   if (error) {
-    _didEndWithError = [error retain];
+    _didEndWithError = error;
   }
   _didQuit = YES;
 

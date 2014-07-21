@@ -40,11 +40,11 @@
                          @"NSUnbufferedIO" : @"YES",
                          }];
 
-  return [CreateTaskForSimulatorExecutable([self cpuType],
+  return CreateTaskForSimulatorExecutable([self cpuType],
                                            [SimulatorInfo baseVersionForSDKShortVersion:[self.simulatorInfo simulatedSdkVersion]],
                                            launchPath,
                                            args,
-                                           env) autorelease];
+                                           env);
 }
 
 - (void)runTestsAndFeedOutputTo:(void (^)(NSString *))outputLineBlock
@@ -83,7 +83,7 @@
       NSData *outputData = [[outputPipe fileHandleForReading] readDataToEndOfFile];
       output = [[NSString alloc] initWithData:outputData encoding:NSUTF8StringEncoding];
     }
-    *otherErrors = [output autorelease];
+    *otherErrors = output;
   } else {
     *startupError = [NSString stringWithFormat:@"Test bundle not found at: %@", testBundlePath];
   }

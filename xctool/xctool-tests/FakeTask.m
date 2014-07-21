@@ -48,7 +48,7 @@ static void writeAll(int fildes, const void *buf, size_t nbyte) {
                 standardOutputPath:(NSString *)standardOutputPath
                  standardErrorPath:(NSString *)standardErrorPath
 {
-  FakeTask *task = [[[FakeTask alloc] init] autorelease];
+  FakeTask *task = [[FakeTask alloc] init];
   [task pretendTerminationReason:pretendTerminationReason];
   [task pretendExitStatusOf:exitStatus];
   [task pretendTaskReturnsStandardOutput:
@@ -73,16 +73,14 @@ static void writeAll(int fildes, const void *buf, size_t nbyte) {
 - (void)pretendTaskReturnsStandardOutput:(NSString *)str
 {
   if (str != _pretendStandardOutput) {
-    [_pretendStandardOutput release];
-    _pretendStandardOutput = [str retain];
+    _pretendStandardOutput = str;
   }
 }
 
 - (void)pretendTaskReturnsStandardError:(NSString *)str
 {
   if (str != _pretendStandardError) {
-    [_pretendStandardError release];
-    _pretendStandardError = [str retain];
+    _pretendStandardError = str;
   }
 }
 
@@ -103,12 +101,6 @@ static void writeAll(int fildes, const void *buf, size_t nbyte) {
   return self;
 }
 
-- (void)dealloc
-{
-  [_pretendStandardOutput release];
-  [_pretendStandardError release];
-  [super dealloc];
-}
 
 - (void)launch
 {

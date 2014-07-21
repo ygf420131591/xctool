@@ -41,8 +41,8 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
   }
 
   for (int i=0; i<[output1Array count]; i++) {
-    NSMutableDictionary *dict1 = [[[NSJSONSerialization JSONObjectWithData:[output1Array[i] dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil] mutableCopy] autorelease];
-    NSMutableDictionary *dict2 = [[[NSJSONSerialization JSONObjectWithData:[output2Array[i] dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil] mutableCopy] autorelease];
+    NSMutableDictionary *dict1 = [[NSJSONSerialization JSONObjectWithData:[output1Array[i] dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil] mutableCopy];
+    NSMutableDictionary *dict2 = [[NSJSONSerialization JSONObjectWithData:[output2Array[i] dataUsingEncoding:NSUTF8StringEncoding] options:0 error:nil] mutableCopy];
     for (NSString *key in keys) {
       [dict1 removeObjectForKey:key];
       [dict2 removeObjectForKey:key];
@@ -124,7 +124,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
       [LaunchHandlers handlerForOtestQueryReturningTestList:@[]],
       ]];
 
-    XCTool *tool = [[[XCTool alloc] init] autorelease];
+    XCTool *tool = [[XCTool alloc] init];
 
     tool.arguments = @[
                        @"-project", TEST_DATA @"TestProjectWithSchemeThatReferencesNonExistentTestTarget/TestProject-Library.xcodeproj",
@@ -172,7 +172,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
      [LaunchHandlers handlerForOtestQueryReturningTestList:@[]],
      ]];
 
-    XCTool *tool = [[[XCTool alloc] init] autorelease];
+    XCTool *tool = [[XCTool alloc] init];
 
     tool.arguments = @[@"-project", TEST_DATA @"TestProject-Library/TestProject-Library.xcodeproj",
                        @"-scheme", @"TestProject-Library",
@@ -210,7 +210,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
       [LaunchHandlers handlerForOtestQueryReturningTestList:@[]],
     ]];
 
-    XCTool *tool = [[[XCTool alloc] init] autorelease];
+    XCTool *tool = [[XCTool alloc] init];
 
     tool.arguments = @[@"-project", TEST_DATA @"TestProject-Library-XCTest-iOS/TestProject-Library-XCTest-iOS.xcodeproj",
                        @"-scheme", @"TestProject-Library-XCTest-iOS",
@@ -248,7 +248,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                                                settingsPath:TEST_DATA @"TestProject-Library-TestProject-LibraryTests-showBuildSettings.txt"
                                                        hide:NO],
      [LaunchHandlers handlerForOtestQueryReturningTestList:testList],
-     [[^(FakeTask *task){
+     [^(FakeTask *task){
       if (IsOtestTask(task)) {
         // Pretend the tests fail, which should make xctool return an overall
         // status of 1.
@@ -258,10 +258,10 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                                    encoding:NSUTF8StringEncoding
                                       error:nil]];
       }
-    } copy] autorelease],
+    } copy],
      ]];
 
-    XCTool *tool = [[[XCTool alloc] init] autorelease];
+    XCTool *tool = [[XCTool alloc] init];
 
     tool.arguments = @[@"-project", TEST_DATA @"TestProject-Library/TestProject-Library.xcodeproj",
                        @"-scheme", @"TestProject-Library",
@@ -323,7 +323,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                                                               [LaunchHandlers handlerForOtestQueryReturningTestList:testList],
                                                               ]];
 
-    XCTool *tool = [[[XCTool alloc] init] autorelease];
+    XCTool *tool = [[XCTool alloc] init];
 
     tool.arguments = @[@"-project", TEST_DATA @"TestProject-Library/TestProject-Library.xcodeproj",
                        @"-scheme", @"TestProject-Library",
@@ -364,7 +364,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                                                settingsPath:TEST_DATA @"TestProject-Library-TestProject-LibraryTests-showBuildSettings-5.0.txt"
                                                        hide:NO],
      [LaunchHandlers handlerForOtestQueryReturningTestList:testList],
-     [[^(FakeTask *task){
+     [^(FakeTask *task){
       if (IsOtestTask(task)) {
         // Pretend the tests fail, which should make xctool return an overall
         // status of 1.
@@ -375,10 +375,10 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                                       error:nil]];
       }
 
-    } copy] autorelease],
+    } copy],
      ]];
 
-    XCTool *tool = [[[XCTool alloc] init] autorelease];
+    XCTool *tool = [[XCTool alloc] init];
 
     tool.arguments = @[@"-project", TEST_DATA @"TestProject-Library/TestProject-Library.xcodeproj",
                        @"-scheme", @"TestProject-Library",
@@ -441,7 +441,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                                                                                                           settingsPath:TEST_DATA @"TestProject-Library-TestProject-LibraryTests-showBuildSettings-5.0.txt"
                                                                                                                   hide:NO],
                                                                 [LaunchHandlers handlerForOtestQueryReturningTestList:testList],
-                                                                [[^(FakeTask *task){
+                                                                [^(FakeTask *task){
         if (IsOtestTask(task)) {
           [task pretendTaskReturnsStandardOutput:
            [NSString stringWithContentsOfFile:TEST_DATA @"TestProject-Library-TestProject-LibraryTests-test-results-notests.txt"
@@ -449,10 +449,10 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                                         error:nil]];
         }
 
-      } copy] autorelease],
+      } copy],
                                                                 ]];
 
-      XCTool *tool = [[[XCTool alloc] init] autorelease];
+      XCTool *tool = [[XCTool alloc] init];
 
       tool.arguments = @[@"-project", TEST_DATA @"TestProject-Library/TestProject-Library.xcodeproj",
                          @"-scheme", @"TestProject-Library",
@@ -520,7 +520,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
      [LaunchHandlers handlerForOtestQueryReturningTestList:@[@"FakeTest/TestA", @"FakeTest/TestB"]],
      ]];
 
-    XCTool *tool = [[[XCTool alloc] init] autorelease];
+    XCTool *tool = [[XCTool alloc] init];
 
     tool.arguments = @[@"-project", TEST_DATA @"TestsWithArgAndEnvSettingsInRunAction/TestsWithArgAndEnvSettings.xcodeproj",
                        @"-scheme", @"TestsWithArgAndEnvSettings",
@@ -535,7 +535,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                            withBlock:
      ^(id self, SEL sel){
        // Don't actually run anything and just save a reference to the runner.
-       runner = [self retain];
+       runner = self;
        // Pretend tests succeeded.
        return YES;
      }
@@ -550,7 +550,6 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                   equalTo(@{@"RunEnvKey" : @"RunEnvValue"}));
      }];
 
-    [runner release];
   }];
 }
 
@@ -574,7 +573,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
      [LaunchHandlers handlerForOtestQueryReturningTestList:@[@"FakeTest/TestA", @"FakeTest/TestB"]],
      ]];
 
-    XCTool *tool = [[[XCTool alloc] init] autorelease];
+    XCTool *tool = [[XCTool alloc] init];
 
     tool.arguments = @[@"-project", TEST_DATA @"TestsWithArgAndEnvSettingsInTestAction/TestsWithArgAndEnvSettings.xcodeproj",
                        @"-scheme", @"TestsWithArgAndEnvSettings",
@@ -589,7 +588,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                            withBlock:
      ^(id self, SEL sel){
        // Don't actually run anything and just save a reference to the runner.
-       runner = [self retain];
+       runner = self;
        // Pretend tests succeeded.
        return YES;
      }
@@ -604,7 +603,6 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                   equalTo(@{@"TestEnvKey" : @"TestEnvValue"}));
      }];
 
-    [runner release];
   }];
 }
 
@@ -628,7 +626,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
      [LaunchHandlers handlerForOtestQueryReturningTestList:@[@"FakeTest/TestA", @"FakeTest/TestB"]],
      ]];
 
-    XCTool *tool = [[[XCTool alloc] init] autorelease];
+    XCTool *tool = [[XCTool alloc] init];
 
     tool.arguments = @[@"-project", TEST_DATA @"TestsWithArgAndEnvSettingsWithMacroExpansion/TestsWithArgAndEnvSettings.xcodeproj",
                        @"-scheme", @"TestsWithArgAndEnvSettings",
@@ -643,7 +641,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                            withBlock:
      ^(id self, SEL sel){
        // Don't actually run anything and just save a reference to the runner.
-       runner = [self retain];
+       runner = self;
        // Pretend tests succeeded.
        return YES;
      }
@@ -673,7 +671,6 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
                   equalTo(expectedEnv));
      }];
 
-    [runner release];
   }];
 }
 
@@ -693,7 +690,7 @@ static BOOL areEqualJsonOutputsIgnoringKeys(NSString *output1, NSString *output2
      [LaunchHandlers handlerForOtestQueryReturningTestList:@[@"FakeTest/TestA", @"FakeTest/TestB"]],
      ]];
 
-    XCTool *tool = [[[XCTool alloc] init] autorelease];
+    XCTool *tool = [[XCTool alloc] init];
 
     tool.arguments = @[@"-project", TEST_DATA @"TestProject-Library-WithDifferentConfigurations/TestProject-Library.xcodeproj",
                        @"-scheme", @"TestProject-Library",

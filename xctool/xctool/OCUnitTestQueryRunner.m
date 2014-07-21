@@ -38,11 +38,6 @@
   return self;
 }
 
-- (void)dealloc
-{
-  [_buildSettings release];
-  [super dealloc];
-}
 
 - (NSString *)bundlePath
 {
@@ -85,7 +80,6 @@
   NSDictionary *output = LaunchTaskAndCaptureOutput(task, @"running otest-query");
 
   int terminationStatus = [task terminationStatus];
-  [task release];
   task = nil;
 
   if (terminationStatus != 0) {

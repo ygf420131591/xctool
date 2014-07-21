@@ -44,7 +44,7 @@
 
 + (SimulatorInfo *)infoForCurrentVersionOfXcode
 {
-  return [[[[self classBasedOnCurrentVersionOfXcode] alloc] init] autorelease];
+  return [[[self classBasedOnCurrentVersionOfXcode] alloc] init];
 }
 
 #pragma mark -
@@ -98,13 +98,6 @@
 #pragma mark -
 #pragma mark Common
 
-- (void)dealloc
-{
-  [_buildSettings release];
-  [_deviceName release];
-  [_OSVersion release];
-  [super dealloc];
-}
 
 - (NSDictionary *)simulatorLaunchEnvironment
 {

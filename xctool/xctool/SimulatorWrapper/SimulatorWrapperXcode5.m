@@ -32,7 +32,7 @@
 
   DTiPhoneSimulatorApplicationSpecifier *appSpec = [DTiPhoneSimulatorApplicationSpecifier specifierWithApplicationPath:
                                                     [XCToolLibExecPath() stringByAppendingPathComponent:@"mobile-installation-helper.app"]];
-  DTiPhoneSimulatorSessionConfig *sessionConfig = [[[DTiPhoneSimulatorSessionConfig alloc] init] autorelease];
+  DTiPhoneSimulatorSessionConfig *sessionConfig = [[DTiPhoneSimulatorSessionConfig alloc] init];
   [sessionConfig setApplicationToSimulateOnStart:appSpec];
   [sessionConfig setSimulatedSystemRoot:systemRoot];
   [sessionConfig setSimulatedDeviceFamily:[simInfo simulatedDeviceFamily]];
@@ -42,8 +42,8 @@
   [sessionConfig setSimulatedApplicationLaunchEnvironment:@{}];
   [sessionConfig setSimulatedDeviceInfoName:[simInfo simulatedDeviceInfoName]];
 
-  SimulatorLauncher *launcher = [[[SimulatorLauncher alloc] initWithSessionConfig:sessionConfig
-                                                                       deviceName:[simInfo simulatedDeviceInfoName]] autorelease];
+  SimulatorLauncher *launcher = [[SimulatorLauncher alloc] initWithSessionConfig:sessionConfig
+                                                                       deviceName:[simInfo simulatedDeviceInfoName]];
 
   BOOL simStartedSuccessfully = [launcher launchAndWaitForExit];
   if (!simStartedSuccessfully && error) {
